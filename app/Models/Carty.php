@@ -9,9 +9,12 @@ class Carty extends Model
     protected $table = 'carty';
 
     protected $fillable = [
-        'Date', 'groupline', 'LineName', 'MachineNo', 'MachineName',
-        'DownTime', 'Problem', 'Action', 'Status', 'Shift',
-        'PIC', 'pic_repair', 'start_time', 'finish_time',
+        'Date', 'Shift', 'groupline', 'LineName', 'MachineNo', 'MachineName',
+        'equipment', 'classification', 'typeofproblem', 'sparepartName', 'sparepartType',
+        'start_time', 'finish_time', 'DownTime', 'worktime', 'stopline',
+        'Problem', 'Cause', 'Action', 'Status',
+        'filebefore1', 'filebefore2', 'fileafter1', 'fileafter2',
+        'PIC', 'pic2', 'pic3', 'pic_repair',
     ];
 
     protected $casts = [

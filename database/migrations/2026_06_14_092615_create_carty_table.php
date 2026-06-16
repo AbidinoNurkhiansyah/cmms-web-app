@@ -14,19 +14,43 @@ return new class extends Migration
         Schema::create('carty', function (Blueprint $table) {
             $table->id();
             $table->date('Date')->index();
+            $table->tinyInteger('Shift')->default(1);
             $table->string('groupline', 20)->nullable();
             $table->string('LineName', 50)->nullable()->index();
             $table->string('MachineNo', 30)->nullable();
             $table->string('MachineName', 150)->nullable();
-            $table->integer('DownTime')->default(0)->comment('minutes');
-            $table->text('Problem')->nullable();
-            $table->text('Action')->nullable();
-            $table->string('Status', 20)->default('Open')->index(); // Open/Progress/Closed/TPM
-            $table->tinyInteger('Shift')->default(1);
-            $table->string('PIC', 100)->nullable();
-            $table->string('pic_repair', 100)->nullable();
+            
+            // Legacy Detailed Fields
+            $table->string('equipment', 100)->nullable();
+            $table->string('classification', 50)->nullable();
+            $table->enum('typeofproblem', ['Electrical', 'Mechanical', 'Other'])->nullable();
+            $table->string('sparepartName', 100)->nullable();
+            $table->string('sparepartType', 100)->nullable();
+            
             $table->time('start_time')->nullable();
             $table->time('finish_time')->nullable();
+            $table->integer('DownTime')->default(0)->comment('minutes');
+            $table->integer('worktime')->default(0)->comment('minutes');
+            $table->integer('stopline')->default(0)->comment('minutes');
+            
+            $table->text('Problem')->nullable();
+            $table->text('Cause')->nullable();
+            $table->text('Action')->nullable();
+            
+            $table->string('Status', 20)->default('Open')->index(); // Open/Progress/Closed/TPM
+            
+            // Pictures
+            $table->string('filebefore1')->nullable();
+            $table->string('filebefore2')->nullable();
+            $table->string('fileafter1')->nullable();
+            $table->string('fileafter2')->nullable();
+            
+            // Personnel
+            $table->string('PIC', 100)->nullable();
+            $table->string('pic2', 100)->nullable();
+            $table->string('pic3', 100)->nullable();
+            $table->string('pic_repair', 100)->nullable();
+            
             $table->timestamps();
         });
     }

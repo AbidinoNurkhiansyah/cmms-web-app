@@ -64,5 +64,9 @@ class DatabaseSeeder extends Seeder
                 'price_idr' => 250000,
             ]
         );
+        // Call Maintenance Seeder
+        $this->call([
+            CartySeeder::class,
+        ]);
     }
 }
