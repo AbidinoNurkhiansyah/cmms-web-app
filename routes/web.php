@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
 
     // Maintenance - Cardty
     Volt::route('/maintenance/cardty', 'maintenance.cardty-index')->name('maintenance.cardty');
+    Volt::route('/maintenance/cardty/create', 'maintenance.cardty-create')->name('maintenance.cardty.create');
+    Volt::route('/maintenance/cardty/{id}/edit', 'maintenance.cardty-edit')->name('maintenance.cardty.edit');
 
     // Checksheet
     Volt::route('/checksheet', 'checksheet.index')->name('checksheet.index');
