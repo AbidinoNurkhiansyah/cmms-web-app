@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen font-sans antialiased bg-base-200">
+<body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200">
 
     {{-- NAVBAR (Mobile Only) --}}
     <x-nav sticky class="lg:hidden bg-base-100/90 backdrop-blur-sm border-b border-base-200">
@@ -27,18 +27,25 @@
     {{-- MAIN --}}
     <x-main>
         {{-- SIDEBAR --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
+        <x-slot:sidebar drawer="main-drawer" class="bg-base-100">
 
             {{-- BRAND & THEME TOGGLE --}}
-            <div class="px-5 pt-4 flex justify-between items-center">
-                <a href="/dashboard">
+            <div class="px-5 pt-4 mb-8 flex justify-between items-center">
+                <a href="/dashboard" class="mary-hideable">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-8 w-auto drop-shadow-sm" />
                 </a>
-                <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm lg:hidden" />
+                
+                <div class="flex items-center gap-1">
+                    {{-- Desktop Collapse Button --}}
+                    <x-button icon="o-bars-3-bottom-right" @click="toggle" class="btn-circle btn-ghost btn-sm hidden lg:flex" />
+                    
+                    {{-- Mobile Theme Toggle --}}
+                    <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm lg:hidden" />
+                </div>
             </div>
 
             {{-- MENU --}}
-            <x-menu activate-by-route>
+            <x-menu activate-by-route active-bg-color="sidebar-active-item">
 
                 {{-- User info (Mobile Only) --}}
                 @if($user = auth()->user())
@@ -119,25 +126,30 @@
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
-        <x-slot:content>
+        <x-slot:content class="lg:!px-6">
             {{-- Desktop Top Header --}}
             @if($user = auth()->user())
-                <div class="hidden lg:flex justify-end items-center gap-4 mb-6 pb-4 pt-4 -mt-4 sticky top-0 z-10 bg-base-200/90 backdrop-blur-sm border-b border-base-300">
-                    <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm" />
+                <div class="hidden lg:flex justify-between items-center gap-2 mb-6 pb-4 pt-4 -mt-4 sticky top-0 z-10 bg-gray-100/90 dark:bg-base-200/90 backdrop-blur-sm border-b border-base-content/10">
                     
-                    <x-dropdown right>
-                        <x-slot:trigger>
-                            <x-button class="btn-ghost normal-case flex items-center gap-2">
-                                <x-icon name="o-user-circle" class="w-6 h-6" />
-                                <span>{{ $user->name }}</span>
-                                <x-icon name="o-chevron-down" class="w-3 h-3 opacity-50" />
-                            </x-button>
-                        </x-slot:trigger>
+                    {{-- Page Title (Left) --}}
+                    <div class="flex-1">
+                        <div class="text-2xl font-bold">{{ $title ?? 'Dashboard' }}</div>
+                        <div class="text-sm text-base-content/70">{{ now()->format('l, d F Y') }}</div>
+                    </div>
+
+                    {{-- Actions (Right) --}}
+                    <div class="flex items-center gap-2">
+                        <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm mr-2" />
+                    
+                        <x-button class="btn-ghost normal-case flex items-center gap-2" link="/profile">
+                            <x-icon name="o-user-circle" class="w-6 h-6" />
+                            <span class="font-medium">{{ $user->name }}</span>
+                        </x-button>
                         
-                        <x-menu-item title="My Profile" icon="o-user" link="/profile" />
-                        <x-menu-separator />
-                        <x-menu-item title="Logout" icon="o-power" class="text-error" onclick="logout_modal.showModal()" />
-                    </x-dropdown>
+                        <div class="divider divider-horizontal mx-0 my-2 w-0.5"></div>
+                        
+                        <x-button icon="o-power" class="btn-ghost text-error btn-circle btn-sm" tooltip-left="Logout" onclick="logout_modal.showModal()" />
+                    </div>
                 </div>
             @endif
 

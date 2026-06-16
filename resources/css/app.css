@@ -27,11 +27,31 @@
 [data-theme="corporate"] {
     --color-primary: var(--color-zinc-800);
     --color-primary-content: var(--color-white);
+    --color-base-200: var(--color-slate-50);
 }
 
 [data-theme="dim"] {
     --color-primary: var(--color-zinc-700);
     --color-primary-content: var(--color-white);
+}
+
+/* Custom Sidebar Active Menu Colors */
+.sidebar-active-item {
+    @apply !bg-neutral !text-neutral-content;
+}
+
+[data-theme="dim"] .sidebar-active-item {
+    @apply !bg-base-content/10 backdrop-blur-md border border-base-content/20 shadow-sm !text-base-content;
+}
+
+/* Custom Table Zebra Contrast */
+.table-zebra tbody tr:nth-child(even) td,
+.table-zebra tbody tr:nth-child(even) th {
+    @apply bg-base-300/40;
+}
+[data-theme="dim"] .table-zebra tbody tr:nth-child(even) td,
+[data-theme="dim"] .table-zebra tbody tr:nth-child(even) th {
+    @apply bg-base-content/10;
 }
 
 /* maryUI */
