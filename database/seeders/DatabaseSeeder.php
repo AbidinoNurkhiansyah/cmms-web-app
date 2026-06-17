@@ -13,21 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::updateOrCreate(
-            ['email' => 'superadmin@digimon.com'],
-            [
-                'name'     => 'Super Administrator',
-                'username' => 'superadmin',
-                'password' => bcrypt('password123'), // Password default
-                'jid_no'   => 'JID99999',
-                'position' => 'Manager',
-                'team'     => 'MTC',
-                'is_admin' => true,
-                'status'   => 'Active',
-            ]
-        );
+        // Call Seeders
+        $this->call([
+            UserSeeder::class,
+        ]);
 
         // Dummy Asset
         \App\Models\Asset::updateOrCreate(
@@ -37,7 +26,6 @@ class DatabaseSeeder extends Seeder
                 'machine_name' => 'COOLANT SYSTEM',
                 'maker' => 'CNK.CO.LTD',
                 'manufacture_year' => 2013,
-                'classification' => 'TANK',
                 'machine_rank' => 'D',
             ]
         );
@@ -49,7 +37,6 @@ class DatabaseSeeder extends Seeder
                 'machine_name' => 'WIDTH GRINDING SBB',
                 'maker' => 'KOYO',
                 'manufacture_year' => 2011,
-                'classification' => 'END FACE GRINDING M/C',
                 'machine_rank' => 'B',
             ]
         );
@@ -58,6 +45,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\SparePart::updateOrCreate(
             ['part_number' => 'BRG-001'],
             [
+                'part_name' => 'BEARING 6205',
                 'group' => 'BEARING',
                 'group_id' => 1,
                 'use_qty' => 5,

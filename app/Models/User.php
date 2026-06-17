@@ -30,8 +30,33 @@ class User extends Authenticatable
         'repair',
         'status',
         'photo',
-        'is_admin',
+        'role',
     ];
+
+    /**
+     * Role definitions
+     */
+    const ROLE_OPERATOR = 'Operator (Produksi)';
+    const ROLE_TECHNICIAN = 'Maintenance Technician';
+    const ROLE_PLANNER = 'Maintenance Planner';
+    const ROLE_SUPERVISOR = 'Maintenance Supervisor';
+    const ROLE_MANAGER = 'Manager';
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user has any of the given roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return in_array($this->role, $roles);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
