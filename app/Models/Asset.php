@@ -17,7 +17,6 @@ class Asset extends Model
         'machine_name',
         'maker',
         'manufacture_year',
-        'classification',
         'machine_rank',
         'machine_photo',
     ];

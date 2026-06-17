@@ -21,11 +21,9 @@ return new class extends Migration
             $table->string('MachineName', 150)->nullable();
             
             // Legacy Detailed Fields
-            $table->string('equipment', 100)->nullable();
-            $table->string('classification', 50)->nullable();
             $table->enum('typeofproblem', ['Electrical', 'Mechanical', 'Other'])->nullable();
             $table->string('sparepartName', 100)->nullable();
-            $table->string('sparepartType', 100)->nullable();
+            $table->integer('sparepartQty')->nullable()->default(0);
             
             $table->time('start_time')->nullable();
             $table->time('finish_time')->nullable();
@@ -37,7 +35,7 @@ return new class extends Migration
             $table->text('Cause')->nullable();
             $table->text('Action')->nullable();
             
-            $table->string('Status', 20)->default('Open')->index(); // Open/Progress/Closed/TPM
+            $table->string('Status', 20)->default('Temporary')->index(); // Temporary/Permanent/etc
             
             // Pictures
             $table->string('filebefore1')->nullable();
@@ -46,10 +44,7 @@ return new class extends Migration
             $table->string('fileafter2')->nullable();
             
             // Personnel
-            $table->string('PIC', 100)->nullable();
-            $table->string('pic2', 100)->nullable();
-            $table->string('pic3', 100)->nullable();
-            $table->string('pic_repair', 100)->nullable();
+            $table->json('pics')->nullable();
             
             $table->timestamps();
         });

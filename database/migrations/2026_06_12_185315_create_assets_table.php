@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('machine_name')->nullable();
             $table->string('maker')->nullable();
             $table->integer('manufacture_year')->nullable();
-            $table->string('classification')->nullable();
             $table->string('machine_rank', 50)->nullable()->index();
             $table->timestamps();
         });
