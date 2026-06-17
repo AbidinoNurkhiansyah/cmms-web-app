@@ -79,7 +79,7 @@ new class extends Component {
         ];
     @endphp
 
-    @if(!auth()->user()?->is_admin)
+    @if(auth()->user() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_TECHNICIAN, \App\Models\User::ROLE_PLANNER, \App\Models\User::ROLE_SUPERVISOR]))
         {{-- Safety Commitment Banner --}}
         <div class="mb-5 overflow-hidden rounded-2xl bg-gradient-to-r from-base-200 to-base-100 border border-base-200 shadow-sm relative"
              x-data="{

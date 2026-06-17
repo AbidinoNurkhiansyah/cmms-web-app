@@ -66,6 +66,7 @@
                 <x-menu-item title="Dashboard" icon="o-home" link="/dashboard" />
 
                 {{-- Maintenance --}}
+                @can('wr.view')
                 <x-menu-sub title="Maintenance" icon="o-wrench-screwdriver">
                     <x-menu-item title="Cardty" icon="o-clipboard-document-list" link="/maintenance/cardty" />
                     <x-menu-item title="Check Sheet" icon="o-document-check" link="/checksheet" />
@@ -73,25 +74,32 @@
                     <x-menu-item title="Andon" icon="o-bell" link="/andon" />
                     <x-menu-item title="One Hour Over" icon="o-clock" link="/maintenance/one-hour-over" />
                 </x-menu-sub>
+                @endcan
 
                 {{-- Deep Cleaning / TPM --}}
+                @can('pm.view')
                 <x-menu-sub title="Deep Cleaning" icon="o-clipboard-document-check">
                     <x-menu-item title="Before After" icon="o-chart-bar" link="/tpm/list" />
                     <x-menu-item title="Schedule" icon="o-calendar-days" link="/tpm/schedule" />
                     <x-menu-item title="Check Sheet" icon="o-document-check" link="/tpm/checksheet" />
                 </x-menu-sub>
+                @endcan
 
                 {{-- Over Houl --}}
+                @can('pm.view')
                 <x-menu-sub title="Over Houl" icon="o-cog-8-tooth">
                     <x-menu-item title="Report" icon="o-document-text" link="/overhaul" />
                 </x-menu-sub>
+                @endcan
 
                 {{-- Spare Part --}}
+                @can('sparepart.view')
                 <x-menu-sub title="Spare Part" icon="o-cog-6-tooth">
                     <x-menu-item title="Spare Part Check" icon="o-check-badge" link="/spare-parts" />
                     <x-menu-item title="Stock Taking" icon="o-clipboard-document" link="/spare-parts/stock-taking" />
                     <x-menu-item title="Repair" icon="o-wrench" link="/spare-parts/repair" />
                 </x-menu-sub>
+                @endcan
 
                 {{-- Administration --}}
                 <x-menu-sub title="Administration" icon="o-user-group">
@@ -105,16 +113,23 @@
 
                 {{-- Master Data --}}
                 <x-menu-sub title="Master Data" icon="o-circle-stack">
-                    <x-menu-item title="User Management" icon="o-users" link="/users" />
-                    <x-menu-item title="Assets" icon="o-cpu-chip" link="/assets" />
-                    <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/spare-parts" />
-                    <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check"
-                        link="/checksheet/master" />
+                    @if(auth()->user()->hasRole(\App\Models\User::ROLE_MANAGER))
+                        <x-menu-item title="User Management" icon="o-users" link="/users" />
+                    @endif
+                    @can('asset.view')
+                        <x-menu-item title="Assets" icon="o-cpu-chip" link="/assets" />
+                    @endcan
+                    @can('sparepart.view')
+                        <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/spare-parts" />
+                    @endcan
+                    <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check" link="/checksheet/master" />
                 </x-menu-sub>
 
                 {{-- Standalone items --}}
                 <x-menu-item title="Annalize Problem" icon="o-chart-pie" link="/problem-analysis" />
+                @can('wo.view')
                 <x-menu-item title="Work Order" icon="o-document-text" link="/work-orders" />
+                @endcan
                 <x-menu-item title="Meeting" icon="o-video-camera" link="/meeting" />
 
                 <x-menu-separator class="lg:hidden" />
@@ -174,6 +189,11 @@
             <button>close</button>
         </form>
     </dialog>
+
+    {{-- Hidden Logout Form --}}
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 
     {{-- TOAST area --}}
     <x-toast />
