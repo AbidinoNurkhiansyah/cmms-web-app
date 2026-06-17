@@ -54,6 +54,26 @@
     @apply bg-base-content/10;
 }
 
+/* Jangan gunakan warna aktif untuk parent submenu (summary) jika sidebar TIDAK dalam mode collapsed (minimize) */
+/* Menggunakan class dari body yang di-inject via Alpine.js di app.blade.php */
+body:not(.sidebar-collapsed) .menu li > details > summary.sidebar-active-item {
+    @apply !bg-transparent !text-inherit !border-transparent !shadow-none !backdrop-filter-none;
+}
+
+/* Buat background menu menjadi lingkaran sempurna saat sidebar di-minimize */
+body.sidebar-collapsed .menu li > *:not(ul):not(.menu-title):not(details),
+body.sidebar-collapsed .menu li > details > summary {
+    @apply !rounded-full !w-10 !h-10 !flex !justify-center !items-center !p-0 !mx-auto;
+}
+
+/* Sembunyikan scrollbar di sidebar saat minimize agar posisi icon tidak tergeser oleh lebar scrollbar */
+body.sidebar-collapsed .drawer-side {
+    scrollbar-width: none; /* Firefox */
+}
+body.sidebar-collapsed .drawer-side::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
+
 /* maryUI */
 @source "../../vendor/robsontenorio/mary/src/View/Components/**/*.php";
 
@@ -71,4 +91,22 @@
 
 .mary-table-pagination button {
     @apply cursor-pointer
+}
+
+/* Matikan efek mengecil (scale) dan warna background bawaan saat menu di-klik atau fokus */
+.menu li > *:not(ul):not(.menu-title):not(details):active,
+.menu li > *:not(ul):not(.menu-title):not(details):focus,
+.menu li > details > summary:active,
+.menu li > details > summary:focus {
+    transform: none !important;
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+/* Pastikan hover tetap bekerja (karena aturan ini ditaruh di bawahnya) */
+@media (hover: hover) {
+    .menu li > *:not(ul):not(.menu-title):not(details):hover:not(.sidebar-active-item),
+    .menu li > details > summary:hover {
+        @apply !bg-base-content/10 !text-inherit;
+    }
 }

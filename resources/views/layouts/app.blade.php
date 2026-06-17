@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200">
+<body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200" x-data="{ sidebarCollapsed: {{ session('mary-sidebar-collapsed', 'false') }} }" @sidebar-toggled.window="sidebarCollapsed = $event.detail" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
 
     {{-- NAVBAR (Mobile Only) --}}
     <x-nav sticky class="lg:hidden bg-base-100/90 backdrop-blur-sm border-b border-base-200">
