@@ -57,14 +57,29 @@ new class extends Component {
 <div>
     <x-header title="Carty / Maintenance" separator>
         <x-slot:actions>
-            <div class="flex flex-row flex-wrap items-center gap-2">
-                <x-select 
-                    wire:model.live="statusFilter" 
-                    :options="[['id'=>'','name'=>'All Status'],['id'=>'Open','name'=>'Open'],['id'=>'Close','name'=>'Close']]" 
-                    option-value="id" option-label="name" 
-                />
-                <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
-                <x-button label="Add Carty" icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}" />
+            <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                <!-- Mobile Row 1 / Desktop Col 1: Status Filter -->
+                <div class="w-full sm:w-40">
+                    <x-select 
+                        wire:model.live="statusFilter" 
+                        :options="[['id'=>'','name'=>'All Status'],['id'=>'Open','name'=>'Open'],['id'=>'Close','name'=>'Close']]" 
+                        option-value="id" option-label="name" 
+                    />
+                </div>
+                
+                <!-- Mobile Row 2 / Desktop Col 2 & 3: Search and Add -->
+                <div class="flex flex-row w-full sm:w-auto gap-2">
+                    <div class="flex-1 sm:w-64">
+                        <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+                    </div>
+                    @can('wr.create')
+                        <div class="flex-none">
+                            <x-button icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}">
+                                <span class="hidden sm:inline">Add Carty</span>
+                            </x-button>
+                        </div>
+                    @endcan
+                </div>
             </div>
         </x-slot:actions>
     </x-header>
@@ -80,6 +95,7 @@ new class extends Component {
                 ['key' => 'Status',       'label' => 'Status', 'class' => 'text-center'],
                 ['key' => 'DownTime',     'label' => 'DownTime (m)', 'class' => 'text-center'],
                 ['key' => 'PIC',          'label' => 'PIC'],
+                ['key' => 'action',       'label' => 'Action', 'class' => 'text-center'],
             ]"
             :rows="$records"
             with-pagination
@@ -89,22 +105,44 @@ new class extends Component {
             @endscope
 
             @scope('cell_Status', $r)
-                <x-badge label="{{ $r->Status }}" 
-                    class="{{ 
-                        match(strtolower($r->Status)) {
-                            'open' => 'badge-error',
-                            'close' => 'badge-success',
-                            default => 'badge-ghost'
-                        }
-                    }}" 
-                />
+                @php
+                    $status = strtolower($r->Status);
+                    $isError = $status === 'open';
+                    $isSuccess = $status === 'close';
+                    
+                    $bgColor = $isError ? 'bg-red-100 dark:bg-red-900/30' : ($isSuccess ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800');
+                    $textColor = $isError ? 'text-red-600 dark:text-red-400' : ($isSuccess ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400');
+                    $dotColor = $isError ? 'bg-red-500' : ($isSuccess ? 'bg-green-500' : 'bg-gray-500');
+                @endphp
+                <div class="text-center">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $bgColor }} {{ $textColor }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $dotColor }}"></span>
+                        {{ $r->Status }}
+                    </div>
+                </div>
             @endscope
 
-            @scope('actions', $r)
-                <div class="flex gap-1">
-                    <x-button icon="o-pencil-square" class="btn-ghost btn-xs" link="{{ route('maintenance.cardty.edit', $r->id) }}" />
-                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
-                        wire:click="confirmDelete({{ $r->id }})" />
+            @scope('cell_PIC', $r)
+                @if(is_array($r->pics) && count($r->pics) > 0)
+                    {{ implode(', ', $r->pics) }}
+                @else
+                    {{ $r->PIC ?? '-' }}
+                @endif
+            @endscope
+
+            @scope('cell_DownTime', $r)
+                <div class="text-center">{{ $r->DownTime }}</div>
+            @endscope
+
+            @scope('cell_action', $r)
+                <div class="flex gap-1 justify-center">
+                    @can('wr.update')
+                        <x-button icon="o-pencil-square" class="btn-ghost btn-xs" link="{{ route('maintenance.cardty.edit', $r->id) }}" />
+                    @endcan
+                    @can('wr.delete')
+                        <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
+                            wire:click="confirmDelete({{ $r->id }})" />
+                    @endcan
                 </div>
             @endscope
         </x-table>
