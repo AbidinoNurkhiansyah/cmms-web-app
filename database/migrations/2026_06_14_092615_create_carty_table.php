@@ -29,7 +29,6 @@ return new class extends Migration
             $table->time('finish_time')->nullable();
             $table->integer('DownTime')->default(0)->comment('minutes');
             $table->integer('worktime')->default(0)->comment('minutes');
-            $table->integer('stopline')->default(0)->comment('minutes');
             
             $table->text('Problem')->nullable();
             $table->text('Cause')->nullable();

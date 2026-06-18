@@ -95,11 +95,10 @@
 
     <!-- Time & Personnel Card -->
     <x-card title="Time & Personnel" shadow class="bg-base-100">
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <x-input label="Start Repair" type="time" wire:model="start_time" />
             <x-input label="Finish Repair" type="time" wire:model="finish_time" />
-            <x-input label="Repair Time (mins)" type="number" wire:model="DownTime" />
-            <x-input label="Total Stop (mins)" type="number" wire:model="stopline" />
+            <x-input label="Down Time (mins)" type="number" wire:model="DownTime" />
             <x-input label="Work Time (mins)" type="number" wire:model="worktime" />
 
             <div class="md:col-span-full space-y-2 mt-4">

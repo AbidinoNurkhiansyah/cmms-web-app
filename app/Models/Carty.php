@@ -11,7 +11,7 @@ class Carty extends Model
     protected $fillable = [
         'Date', 'Shift', 'groupline', 'LineName', 'MachineNo', 'MachineName',
         'typeofproblem', 'sparepartName', 'sparepartQty',
-        'start_time', 'finish_time', 'DownTime', 'worktime', 'stopline',
+        'start_time', 'finish_time', 'DownTime', 'worktime',
         'Problem', 'Cause', 'Action', 'Status',
         'filebefore1', 'filebefore2', 'fileafter1', 'fileafter2',
         'PIC', 'pics',
