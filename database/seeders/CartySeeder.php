@@ -121,12 +121,12 @@ class CartySeeder extends Seeder
         $end = Carbon::now()->month(6)->endOfMonth();
 
         $problemTypes = ['Electrical', 'Mechanical', 'Other'];
-        $sparepartNames = \App\Models\SparePart::whereNotNull('part_name')->pluck('part_name')->toArray();
+        $sparepartNames = \App\Models\SparePart::query()->whereNotNull('part_name')->pluck('part_name')->toArray();
         if (empty($sparepartNames)) {
             $sparepartNames = ['BEARING 6205', 'O-RING 12'];
         }
         
-        $userNames = \App\Models\User::where('role', \App\Models\User::ROLE_TECHNICIAN)->pluck('name')->toArray();
+        $userNames = \App\Models\User::query()->where('role', \App\Models\User::ROLE_TECHNICIAN)->pluck('name')->toArray();
         if (empty($userNames)) {
             $userNames = ['Andy', 'Budi', 'Candra', 'Deni', 'Eko', 'Fajar', 'Galih'];
         }
@@ -153,7 +153,6 @@ class CartySeeder extends Seeder
             $template['start_time'] = $startTime->format('H:i');
             $template['finish_time'] = $finishTime->format('H:i');
             $template['DownTime'] = $downTime;
-            $template['stopline'] = $downTime; // generally equal or less
             $template['worktime'] = $downTime + rand(10, 30);
             
             $template['Shift'] = rand(1, 3);
