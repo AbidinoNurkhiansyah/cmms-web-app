@@ -34,7 +34,6 @@ new class extends Component {
     public ?int $sparepartQty = null;
     public string $Cause = '';
     public string $worktime = '0';
-    public string $stopline = '0';
 
     public array $pics = ['']; // Dynamic PIC array
 
@@ -66,7 +65,7 @@ new class extends Component {
             $this->lineNames = Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
         } else {
             $this->lineNames = Asset::whereNotNull('line_name')
-                ->where('line_name', 'like', "%{$value}%")
+                ->where([['line_name', 'like', "%{$value}%"]])
                 ->distinct()
                 ->pluck('line_name')
                 ->toArray();
@@ -76,9 +75,9 @@ new class extends Component {
     public function searchMachine(string $value = '')
     {
         if ($this->LineName) {
-            $query = Asset::where('line_name', $this->LineName);
+            $query = Asset::where(['line_name' => $this->LineName]);
             if (!empty($value)) {
-                $query->where('machine_name', 'like', "%{$value}%");
+                $query->where([['machine_name', 'like', "%{$value}%"]]);
             }
             $this->machines = $query->get();
         } else {
@@ -91,7 +90,7 @@ new class extends Component {
         if (empty($value)) {
             $this->spareparts = SparePart::all();
         } else {
-            $this->spareparts = SparePart::where('part_name', 'like', "%{$value}%")->get();
+            $this->spareparts = SparePart::where([['part_name', 'like', "%{$value}%"]])->get();
         }
     }
 
@@ -100,7 +99,7 @@ new class extends Component {
         if (empty($value)) {
             $this->users = User::all();
         } else {
-            $this->users = User::where('name', 'like', "%{$value}%")->get();
+            $this->users = User::where([['name', 'like', "%{$value}%"]])->get();
         }
     }
 
@@ -111,7 +110,7 @@ new class extends Component {
         $this->MachineName = '';
         
         if ($value) {
-            $this->machines = Asset::where('line_name', $value)->get();
+            $this->machines = Asset::where(['line_name' => $value])->get();
         } else {
             $this->machines = collect();
         }
@@ -173,7 +172,6 @@ new class extends Component {
             'sparepartQty' => (int) $this->sparepartQty,
             'Cause' => $this->Cause,
             'worktime' => (int) $this->worktime,
-            'stopline' => (int) $this->stopline,
         ];
 
         // Handle File Uploads
@@ -196,23 +194,11 @@ new class extends Component {
 
 <div>
     <!-- Header -->
-    <x-header separator class="mb-4">
-        <x-slot:title>
-            <div class="flex items-center gap-2">
-                <x-button icon="o-arrow-left" class="btn-circle btn-ghost btn-sm"
-                    link="{{ route('maintenance.cardty') }}" tooltip-left="Back to List" />
-                <span class="text-xl">Create Maintenance Record</span>
-            </div>
-        </x-slot:title>
-    </x-header>
+    <x-maintenance.carty-header title="Create Maintenance Record" />
 
     <!-- Form Layout -->
     @include('components.maintenance.carty-form')
 
     <!-- Actions -->
-    <div class="mt-4 flex justify-end gap-2">
-        <x-button label="Cancel" link="{{ route('maintenance.cardty') }}"
-            class="btn-ghost hover:bg-base-200 dark:hover:bg-gray-700" />
-        <x-button label="Save Record" wire:click="save" icon="o-check" class="btn-primary" spinner="save" />
-    </div>
+    <x-maintenance.carty-actions submit-label="Save Record" />
 </div>
