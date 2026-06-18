@@ -99,6 +99,7 @@ new class extends Component {
             ]"
             :rows="$records"
             with-pagination
+            link="/maintenance/cardty/{id}"
         >
             @scope('cell_Date', $r)
                 {{ $r->Date ? $r->Date->format('Y-m-d') : '-' }}
@@ -107,12 +108,12 @@ new class extends Component {
             @scope('cell_Status', $r)
                 @php
                     $status = strtolower($r->Status);
-                    $isError = $status === 'open';
-                    $isSuccess = $status === 'close';
                     
-                    $bgColor = $isError ? 'bg-red-100 dark:bg-red-900/30' : ($isSuccess ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800');
-                    $textColor = $isError ? 'text-red-600 dark:text-red-400' : ($isSuccess ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400');
-                    $dotColor = $isError ? 'bg-red-500' : ($isSuccess ? 'bg-green-500' : 'bg-gray-500');
+                    [$bgColor, $textColor, $dotColor] = match($status) {
+                        'permanent' => ['bg-blue-100 dark:bg-blue-900/30', 'text-blue-600 dark:text-blue-400', 'bg-blue-500'],
+                        'temporary' => ['bg-orange-100 dark:bg-orange-900/30', 'text-orange-600 dark:text-orange-400', 'bg-orange-500'],
+                        default => ['bg-gray-100 dark:bg-gray-800', 'text-gray-600 dark:text-gray-400', 'bg-gray-500'],
+                    };
                 @endphp
                 <div class="text-center">
                     <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $bgColor }} {{ $textColor }}">
@@ -137,11 +138,11 @@ new class extends Component {
             @scope('cell_action', $r)
                 <div class="flex gap-1 justify-center">
                     @can('wr.update')
-                        <x-button icon="o-pencil-square" class="btn-ghost btn-xs" link="{{ route('maintenance.cardty.edit', $r->id) }}" />
+                        <x-button icon="o-pencil-square" class="btn-ghost btn-xs" link="{{ route('maintenance.cardty.edit', $r->id) }}" @click.stop="" />
                     @endcan
                     @can('wr.delete')
                         <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
-                            wire:click="confirmDelete({{ $r->id }})" />
+                            wire:click.stop="confirmDelete({{ $r->id }})" />
                     @endcan
                 </div>
             @endscope
