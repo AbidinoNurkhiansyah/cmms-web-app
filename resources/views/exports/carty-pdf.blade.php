@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Maintenance Records Export</title>
@@ -7,35 +8,46 @@
         @page {
             margin: 110px 30px 50px 30px;
         }
-        body {
+
+        body, h1, h2, h3, h4, h5, h6, table, th, td, p, span {
             font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+        }
+
+        body {
             font-size: 9px;
             color: #374151;
         }
+
         header {
             position: fixed;
             top: -80px;
             left: 0;
             right: 0;
             height: 60px;
-            border-bottom: 2px solid #4F46E5;
+            border-bottom: 2px solid #111827;
             padding-bottom: 10px;
         }
+
         header table {
             width: 100%;
             border-collapse: collapse;
         }
+
         header td {
             vertical-align: middle;
             border: none;
             padding: 0;
         }
+
         .logo {
-            height: 40px; /* Adjust based on your logo's aspect ratio */
+            height: 40px;
+            /* Adjust based on your logo's aspect ratio */
         }
+
         .report-info {
             text-align: right;
         }
+
         .report-info h1 {
             margin: 0;
             font-size: 18px;
@@ -43,11 +55,13 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
         .report-info p {
             margin: 4px 0 0 0;
             font-size: 10px;
             color: #6B7280;
         }
+
         footer {
             position: fixed;
             bottom: -30px;
@@ -59,61 +73,126 @@
             font-size: 8px;
             color: #9CA3AF;
         }
+
         footer table {
             width: 100%;
             border-collapse: collapse;
         }
+
         footer td {
             border: none;
             padding: 0;
         }
+
         .page-number:before {
             content: "Page " counter(page) " of " counter(pages);
         }
+
         table.data-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
             word-wrap: break-word;
         }
-        table.data-table th, table.data-table td {
+
+        table.data-table th,
+        table.data-table td {
             border: 1px solid #d1d5db;
             padding: 6px 4px;
             vertical-align: top;
         }
+
         table.data-table th {
-            background-color: #4F46E5;
+            background-color: #111827;
             color: #ffffff;
             font-weight: 600;
             font-size: 8px;
             text-transform: uppercase;
         }
+
         table.data-table tbody tr:nth-child(even) {
             background-color: #f9fafb;
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .text-left { text-align: left; }
-        
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
         /* Column Widths Configuration to ensure everything fits perfectly */
-        .col-date { width: 5%; }
-        .col-shift { width: 4%; }
-        .col-group { width: 6%; }
-        .col-line { width: 6%; }
-        .col-machine-no { width: 6%; }
-        .col-machine-name { width: 7%; }
-        .col-type { width: 7%; }
-        .col-part-name { width: 8%; }
-        .col-part-qty { width: 5%; }
-        .col-time { width: 5%; }
-        .col-duration { width: 5%; }
-        .col-problem { width: 8%; }
-        .col-cause { width: 8%; }
-        .col-action { width: 8%; }
-        .col-status { width: 5%; }
-        .col-pic { width: 6%; }
+        .col-date {
+            width: 5%;
+        }
+
+        .col-shift {
+            width: 4%;
+        }
+
+        .col-group {
+            width: 6%;
+        }
+
+        .col-line {
+            width: 6%;
+        }
+
+        .col-machine-no {
+            width: 6%;
+        }
+
+        .col-machine-name {
+            width: 7%;
+        }
+
+        .col-type {
+            width: 7%;
+        }
+
+        .col-part-name {
+            width: 8%;
+        }
+
+        .col-part-qty {
+            width: 5%;
+        }
+
+        .col-time {
+            width: 5%;
+        }
+
+        .col-duration {
+            width: 5%;
+        }
+
+        .col-problem {
+            width: 8%;
+        }
+
+        .col-cause {
+            width: 8%;
+        }
+
+        .col-action {
+            width: 8%;
+        }
+
+        .col-status {
+            width: 5%;
+        }
+
+        .col-pic {
+            width: 6%;
+        }
     </style>
 </head>
+
 <body>
     @php
         $logoPath = public_path('images/logo.png');
@@ -128,14 +207,15 @@
                     @if($logoSrc)
                         <img src="{{ $logoSrc }}" class="logo" alt="Company Logo">
                     @else
-                        <h2 style="margin:0; color:#4F46E5; font-style: italic;">COMPANY LOGO</h2>
+                        <h2 style="margin:0; color:#111827; font-style: italic;">COMPANY LOGO</h2>
                     @endif
                 </td>
                 <td style="width: 50%;" class="report-info">
-                    <h1>Maintenance Report</h1>
+                    <h1>Maintenance Cardty Report</h1>
                     <p>Generated on: {{ now()->format('d M Y, H:i') }}</p>
                     @if($startDate || $endDate)
-                        <p>Period: {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d M Y') : 'Beginning' }} - {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d M Y') : 'End' }}</p>
+                        <p>Period: {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d M Y') : 'Beginning' }} -
+                            {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d M Y') : 'End' }}</p>
                     @else
                         <p>Period: All Time Records</p>
                     @endif
@@ -180,8 +260,8 @@
             <tbody>
                 @foreach($records as $record)
                     @php
-                        $pics = is_array($record->pics) && count($record->pics) > 0 
-                            ? implode(', ', $record->pics) 
+                        $pics = is_array($record->pics) && count($record->pics) > 0
+                            ? implode(', ', $record->pics)
                             : ($record->PIC ?? '-');
 
                         $sparePartsNameStr = '-';
@@ -223,4 +303,5 @@
         </table>
     </main>
 </body>
+
 </html>

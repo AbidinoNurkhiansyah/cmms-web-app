@@ -31,6 +31,10 @@ new class extends Component {
         $export = new CartyExport($this->search, $this->statusFilter, $this->exportStartDate, $this->exportEndDate);
 
         if ($this->exportFormat === 'pdf') {
+            // Gunakan output buffer untuk menangkap warning/notice dari DOMPDF
+            // Warning ini sering membuat Livewire mengira response kotor & memicu auto-reload
+            ob_start();
+            
             $records = $export->collection();
             $pdf = Pdf::loadView('exports.carty-pdf', [
                 'records' => $records,
@@ -38,7 +42,16 @@ new class extends Component {
                 'endDate' => $this->exportEndDate,
             ])->setPaper('a4', 'landscape');
             
-            return response()->streamDownload(fn () => print($pdf->output()), $fileName . '.pdf');
+            $tempPath = sys_get_temp_dir() . '/' . $fileName . '.pdf';
+            $pdf->save($tempPath);
+            
+            // Buang semua warning yang terekam agar tidak mengotori response Livewire
+            ob_end_clean(); 
+            
+            // Tutup modal di frontend
+            $this->exportModal = false;
+            
+            return response()->download($tempPath, $fileName . '.pdf')->deleteFileAfterSend(true);
         }
 
         return Excel::download($export, $fileName . '.xlsx');
