@@ -18,7 +18,10 @@ class CartyExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         protected string $search = '',
         protected string $status = '',
         protected string $startDate = '',
-        protected string $endDate = ''
+        protected string $endDate = '',
+        protected string $lineName = '',
+        protected string $machineName = '',
+        protected string $totalStopLine = ''
     ) {}
 
     public function collection()
@@ -45,6 +48,22 @@ class CartyExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
         if ($this->endDate) {
             $query->whereDate('Date', '<=', $this->endDate);
+        }
+
+        if ($this->lineName) {
+            $query->where('LineName', $this->lineName);
+        }
+
+        if ($this->machineName) {
+            $query->where('MachineName', $this->machineName);
+        }
+
+        if ($this->totalStopLine) {
+            if ($this->totalStopLine === '30') {
+                $query->where('DownTime', '>=', 30);
+            } elseif ($this->totalStopLine === '60') {
+                $query->where('DownTime', '>=', 60);
+            }
         }
 
         return $query->get();

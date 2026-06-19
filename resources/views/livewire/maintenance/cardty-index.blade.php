@@ -23,34 +23,67 @@ new class extends Component {
     public string $exportStartDate = '';
     public string $exportEndDate = '';
     public string $exportFormat = 'excel';
+    
+    public string $exportLineName = '';
+    public string $exportMachineName = '';
+    public string $exportTotalStopLine = '';
+    public string $exportStatus = '';
+    
+    public array $exportLineNames = [];
+    public \Illuminate\Support\Collection $exportMachines;
+
+    public function mount(): void
+    {
+        $lines = \App\Models\Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
+        $this->exportLineNames = collect($lines)->map(fn($line) => ['id' => $line, 'name' => $line])->toArray();
+        $this->exportMachines = collect();
+    }
+
+    public function updatedExportLineName($value): void
+    {
+        $this->exportMachineName = '';
+        if ($value) {
+            $this->exportMachines = \App\Models\Asset::where('line_name', $value)->get();
+        } else {
+            $this->exportMachines = collect();
+        }
+    }
 
     public function processExport()
     {
         $fileName = 'maintenance_records_' . now()->format('Y_m_d_His');
-        
-        $export = new CartyExport($this->search, $this->statusFilter, $this->exportStartDate, $this->exportEndDate);
+
+        $export = new CartyExport(
+            $this->search, 
+            $this->exportStatus, 
+            $this->exportStartDate, 
+            $this->exportEndDate,
+            $this->exportLineName,
+            $this->exportMachineName,
+            $this->exportTotalStopLine
+        );
 
         if ($this->exportFormat === 'pdf') {
             // Gunakan output buffer untuk menangkap warning/notice dari DOMPDF
             // Warning ini sering membuat Livewire mengira response kotor & memicu auto-reload
             ob_start();
-            
+
             $records = $export->collection();
             $pdf = Pdf::loadView('exports.carty-pdf', [
                 'records' => $records,
                 'startDate' => $this->exportStartDate,
                 'endDate' => $this->exportEndDate,
             ])->setPaper('a4', 'landscape');
-            
+
             $tempPath = sys_get_temp_dir() . '/' . $fileName . '.pdf';
             $pdf->save($tempPath);
-            
+
             // Buang semua warning yang terekam agar tidak mengotori response Livewire
-            ob_end_clean(); 
-            
+            ob_end_clean();
+
             // Tutup modal di frontend
             $this->exportModal = false;
-            
+
             return response()->download($tempPath, $fileName . '.pdf')->deleteFileAfterSend(true);
         }
 
@@ -112,15 +145,17 @@ new class extends Component {
                     <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable
                         icon="o-magnifying-glass" />
                 </div>
-                
+
                 <!-- Filter Toggle -->
                 <div class="flex-none">
-                    <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost" tooltip="Filters" />
+                    <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost"
+                        tooltip="Filters" />
                 </div>
 
                 <!-- Export -->
                 <div class="flex-none">
-                    <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white" tooltip="Export Data">
+                    <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white"
+                        tooltip="Export Data">
                         <span class="hidden sm:inline">Export</span>
                     </x-button>
                 </div>
@@ -145,10 +180,13 @@ new class extends Component {
                     <x-input label="Date" type="date" wire:model.live="dateFilter" icon="o-calendar" />
                 </div>
                 <div class="flex-1">
-                    <x-select label="Status" wire:model.live="statusFilter" :options="[['id' => '', 'name' => 'All Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]" option-value="id" option-label="name" />
+                    <x-select label="Status" wire:model.live="statusFilter" :options="[['id' => '', 'name' => 'All Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]"
+                        option-value="id" option-label="name" />
                 </div>
                 <div class="flex-none">
-                    <x-button label="Clear Filters" icon="o-x-mark" wire:click="$set('dateFilter', ''); $set('statusFilter', ''); $set('search', '')" class="btn-ghost" />
+                    <x-button label="Clear Filters" icon="o-x-mark"
+                        wire:click="$set('dateFilter', ''); $set('statusFilter', ''); $set('search', '')"
+                        class="btn-ghost" />
                 </div>
             </div>
         </div>
@@ -228,7 +266,7 @@ new class extends Component {
 
         <x-slot:actions>
             <x-button label="Batal" wire:click="$set('deleteModal', false)" class="btn-ghost" />
-            <x-button label="Ya, Hapus" wire:click="deleteRecord" class="btn-error" spinner="deleteRecord" />
+            <x-button label="Ya, Hapus" wire:click="deleteRecord" class="btn-error text-white" spinner="deleteRecord" />
         </x-slot:actions>
     </x-modal>
 
@@ -236,16 +274,27 @@ new class extends Component {
     <x-modal wire:model="exportModal" title="Export Options" separator>
         <div class="space-y-4 py-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-select label="Line Name" wire:model.live="exportLineName" :options="$exportLineNames" option-value="id" option-label="name" placeholder="Semua Line" />
+                <x-select label="Machine Name" wire:model="exportMachineName" :options="$exportMachines" option-value="machine_name" option-label="machine_name" placeholder="Semua Mesin" :disabled="!$exportLineName" />
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-select label="Total Stop Line" wire:model="exportTotalStopLine" :options="[['id' => '', 'name' => 'Semua'], ['id' => '30', 'name' => '>= 30 Menit'], ['id' => '60', 'name' => '>= 60 Menit']]" option-value="id" option-label="name" />
+                <x-select label="Status" wire:model="exportStatus" :options="[['id' => '', 'name' => 'Semua Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]" option-value="id" option-label="name" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input label="Start Date" type="date" wire:model="exportStartDate" icon="o-calendar" />
                 <x-input label="End Date" type="date" wire:model="exportEndDate" icon="o-calendar" />
             </div>
-            
+
             <x-radio label="Export Format" wire:model="exportFormat" :options="[['id' => 'excel', 'name' => 'Excel (.xlsx)'], ['id' => 'pdf', 'name' => 'PDF Document (.pdf)']]" option-value="id" option-label="name" />
         </div>
 
         <x-slot:actions>
             <x-button label="Cancel" @click="$wire.exportModal = false" class="btn-ghost" />
-            <x-button label="Download" wire:click="processExport" icon="o-arrow-down-tray" class="btn-success text-white" spinner="processExport" />
+            <x-button label="Download" wire:click="processExport" icon="o-arrow-down-tray"
+                class="btn-success text-white" spinner="processExport" />
         </x-slot:actions>
     </x-modal>
 </div>
