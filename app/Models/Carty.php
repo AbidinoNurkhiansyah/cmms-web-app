@@ -23,4 +23,9 @@ class Carty extends Model
         'Shift' => 'integer',
         'pics' => 'array',
     ];
+
+    public function spareParts()
+    {
+        return $this->belongsToMany(SparePart::class)->withPivot('qty')->withTimestamps();
+    }
 }

@@ -28,4 +28,9 @@ class SparePart extends Model
         'repair_rack',
         'manual_doc',
     ];
+
+    public function carties()
+    {
+        return $this->belongsToMany(Carty::class)->withPivot('qty')->withTimestamps();
+    }
 }

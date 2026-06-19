@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
         );
         // Call Maintenance Seeder
         $this->call([
+            SparePartSeeder::class,
             CartySeeder::class,
         ]);
     }

@@ -132,6 +132,7 @@ class CartySeeder extends Seeder
         }
 
         $assetIds = \App\Models\Asset::pluck('id')->toArray();
+        $sparePartIds = \App\Models\SparePart::pluck('id')->toArray();
 
         // Seed 200 records to deeply test pagination and chart simulations
         for ($i = 0; $i < 200; $i++) {
@@ -189,7 +190,19 @@ class CartySeeder extends Seeder
             $template['fileafter1'] = 'images/cardty/repair.png';
             $template['fileafter2'] = 'images/cardty/finish.png';
             
-            Carty::create($template);
+            $carty = Carty::create($template);
+
+            // Seed Pivot Table (carty_spare_part)
+            if (!empty($sparePartIds) && rand(0, 1) === 1) {
+                $partsCount = rand(1, 3);
+                $partsToAttach = (array) array_rand(array_flip($sparePartIds), min($partsCount, count($sparePartIds)));
+                
+                $syncData = [];
+                foreach ($partsToAttach as $spId) {
+                    $syncData[$spId] = ['qty' => rand(1, 5)];
+                }
+                $carty->spareParts()->sync($syncData);
+            }
         }
     }
 }
