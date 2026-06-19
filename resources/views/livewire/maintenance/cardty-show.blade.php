@@ -5,6 +5,8 @@ use Livewire\Volt\Component;
 
 new class extends Component {
     public $detailRecord;
+    public $previousRecordId;
+    public $nextRecordId;
 
     public function mount(int $id, CartyService $service): void
     {
@@ -12,6 +14,35 @@ new class extends Component {
         if (!$this->detailRecord) {
             abort(404);
         }
+
+        // Previous record (newer date/id since list is sorted desc)
+        $prev = \App\Models\Carty::where('Date', '>', $this->detailRecord->Date)
+            ->orWhere(function ($query) {
+                $query->where('Date', $this->detailRecord->Date)
+                      ->where('id', '>', $this->detailRecord->id);
+            })
+            ->orderBy('Date')->orderBy('id')
+            ->first();
+            
+        $this->previousRecordId = $prev ? $prev->id : null;
+
+        // Next record (older date/id)
+        $next = \App\Models\Carty::where('Date', '<', $this->detailRecord->Date)
+            ->orWhere(function ($query) {
+                $query->where('Date', $this->detailRecord->Date)
+                      ->where('id', '<', $this->detailRecord->id);
+            })
+            ->orderByDesc('Date')->orderByDesc('id')
+            ->first();
+            
+        $this->nextRecordId = $next ? $next->id : null;
+    }
+
+    public function switchRecord(int $id, CartyService $service)
+    {
+        $this->mount($id, $service);
+        $url = route('maintenance.cardty.show', $id);
+        $this->js("history.pushState(null, '', '{$url}')");
     }
 
     public function getImageUrl($path)
@@ -36,7 +67,24 @@ new class extends Component {
              }
          }
      }" @fullscreenchange.window="isFullscreen = !!document.fullscreenElement"
-    :class="isFullscreen ? 'p-4 md:p-8 bg-base-100 overflow-y-auto' : ''">
+    @keydown.left.window="if(isFullscreen && $wire.previousRecordId) $wire.switchRecord($wire.previousRecordId)"
+    @keydown.right.window="if(isFullscreen && $wire.nextRecordId) $wire.switchRecord($wire.nextRecordId)"
+    :class="isFullscreen ? 'p-4 md:p-8 bg-base-100 overflow-y-auto relative' : ''">
+
+    <!-- Floating Navigation in Fullscreen -->
+    <div x-show="isFullscreen" style="display: none;" x-transition>
+        @if($previousRecordId)
+            <button wire:click="switchRecord({{ $previousRecordId }})" class="fixed left-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-ghost btn-lg bg-base-200/50 opacity-30 hover:opacity-100 z-50">
+                <x-icon name="o-chevron-left" class="w-10 h-10" />
+            </button>
+        @endif
+        @if($nextRecordId)
+            <button wire:click="switchRecord({{ $nextRecordId }})" class="fixed right-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-ghost btn-lg bg-base-200/50 opacity-30 hover:opacity-100 z-50">
+                <x-icon name="o-chevron-right" class="w-10 h-10" />
+            </button>
+        @endif
+    </div>
+
     <!-- Header -->
     <x-header separator class="mb-4">
         <x-slot:title>
@@ -48,15 +96,29 @@ new class extends Component {
         </x-slot:title>
 
         <x-slot:actions>
-            <x-button icon="o-arrows-pointing-out" label="Full Screen" @click="toggleFullscreen" x-show="!isFullscreen"
-                class="btn-ghost btn-sm" />
-            <x-button icon="o-arrows-pointing-in" label="Exit Full Screen" @click="toggleFullscreen"
-                x-show="isFullscreen" style="display: none;" class="btn-ghost btn-sm" />
+            <div class="flex items-center gap-2">
+                @if($previousRecordId)
+                    <x-button icon="o-chevron-left" wire:click="switchRecord({{ $previousRecordId }})" 
+                        class="btn-ghost btn-sm" tooltip="Previous Record" />
+                @endif
+                
+                @if($nextRecordId)
+                    <x-button icon="o-chevron-right" wire:click="switchRecord({{ $nextRecordId }})" 
+                        class="btn-ghost btn-sm" tooltip="Next Record" />
+                @endif
 
-            @can('wr.update')
-                <x-button icon="o-pencil-square" label="Edit Record"
-                    link="{{ route('maintenance.cardty.edit', $this->detailRecord->id) }}" class="btn-primary btn-sm" />
-            @endcan
+                <div class="divider divider-horizontal mx-0"></div>
+
+                <x-button icon="o-arrows-pointing-out" label="Full Screen" @click="toggleFullscreen" x-show="!isFullscreen"
+                    class="btn-ghost btn-sm" />
+                <x-button icon="o-arrows-pointing-in" label="Exit Full Screen" @click="toggleFullscreen"
+                    x-show="isFullscreen" style="display: none;" class="btn-ghost btn-sm" />
+
+                @can('wr.update')
+                    <x-button icon="o-pencil-square" label="Edit Record"
+                        link="{{ route('maintenance.cardty.edit', $this->detailRecord->id) }}" class="btn-primary btn-sm" />
+                @endcan
+            </div>
         </x-slot:actions>
     </x-header>
 
@@ -110,27 +172,40 @@ new class extends Component {
                             <span class="font-semibold">{{ $detailRecord->Status }}</span>
                         </div>
                         <div class="col-span-2">
-                            <span class="text-gray-500 block">Spare Part</span>
-                            <span class="font-semibold">{{ $detailRecord->sparepartName ?: '-' }} <span
-                                    class="text-gray-400 font-normal">(Qty:
-                                    {{ $detailRecord->sparepartQty ?: 0 }})</span></span>
+                            <span class="text-gray-500 block mb-1">Spare Parts Used</span>
+                            @if($detailRecord->spareParts && $detailRecord->spareParts->count() > 0)
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($detailRecord->spareParts as $sp)
+                                        <span class="badge badge-outline badge-lg gap-2">
+                                            {{ $sp->part_name }}
+                                            <div class="badge badge-primary badge-sm">Qty: {{ $sp->pivot->qty }}</div>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @elseif($detailRecord->sparepartName)
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="badge badge-outline badge-lg gap-2">
+                                        {{ $detailRecord->sparepartName }}
+                                        <div class="badge badge-primary badge-sm">Qty: {{ $detailRecord->sparepartQty ?: 1 }}</div>
+                                    </span>
+                                </div>
+                            @else
+                                <span class="font-semibold">-</span>
+                            @endif
                         </div>
                     </div>
                     <hr class="border-base-300" />
-                    <div>
+                    <div class="text-left w-full">
                         <span class="text-gray-500 block mb-1">Problem</span>
-                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg">
-                            {{ $detailRecord->Problem ?: '-' }}</p>
+                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg text-left">{{ $detailRecord->Problem ?: '-' }}</p>
                     </div>
-                    <div>
+                    <div class="text-left w-full">
                         <span class="text-gray-500 block mb-1">Cause</span>
-                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg">
-                            {{ $detailRecord->Cause ?: '-' }}</p>
+                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg text-left">{{ $detailRecord->Cause ?: '-' }}</p>
                     </div>
-                    <div>
+                    <div class="text-left w-full">
                         <span class="text-gray-500 block mb-1">Action (Countermeasures)</span>
-                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg">
-                            {{ $detailRecord->Action ?: '-' }}</p>
+                        <p class="font-semibold whitespace-pre-wrap bg-base-200 p-3 rounded-lg text-left">{{ $detailRecord->Action ?: '-' }}</p>
                     </div>
                 </div>
                 </x-card>

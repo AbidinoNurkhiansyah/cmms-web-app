@@ -25,7 +25,7 @@
     </x-nav>
 
     {{-- MAIN --}}
-    <x-main>
+    <x-main full-width>
         {{-- SIDEBAR --}}
         <x-slot:sidebar drawer="main-drawer" class="bg-base-100">
 
@@ -37,7 +37,7 @@
                 
                 <div class="flex items-center gap-1">
                     {{-- Desktop Collapse Button --}}
-                    <x-button icon="o-bars-3-bottom-right" @click="toggle" class="btn-circle btn-ghost btn-sm hidden lg:flex" />
+                    <x-button icon="o-bars-3-bottom-right" @click="toggle()" class="btn-circle btn-ghost btn-sm hidden lg:flex" />
                     
                     {{-- Mobile Theme Toggle --}}
                     <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm lg:hidden" />

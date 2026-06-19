@@ -36,6 +36,7 @@ new class extends Component {
     public string $worktime = '0';
 
     public array $pics = ['']; // Dynamic PIC array
+    public array $usedSpareparts = [['spare_part_id' => '', 'qty' => 1]]; // Dynamic Spareparts array
 
     public $filebefore1;
     public $filebefore2;
@@ -143,6 +144,17 @@ new class extends Component {
         $this->pics = array_values($this->pics);
     }
 
+    public function addSparepart()
+    {
+        $this->usedSpareparts[] = ['spare_part_id' => '', 'qty' => 1];
+    }
+
+    public function removeSparepart($index)
+    {
+        unset($this->usedSpareparts[$index]);
+        $this->usedSpareparts = array_values($this->usedSpareparts);
+    }
+
     public function save(CartyService $service)
     {
         $this->validate([
@@ -172,6 +184,9 @@ new class extends Component {
             'sparepartQty' => (int) $this->sparepartQty,
             'Cause' => $this->Cause,
             'worktime' => (int) $this->worktime,
+
+            // Pivot Data
+            'usedSpareparts' => $this->usedSpareparts,
         ];
 
         // Handle File Uploads

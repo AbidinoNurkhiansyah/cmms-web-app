@@ -31,12 +31,29 @@
                     option-label="name" />
             </div>
 
-            <div class="lg:col-span-2">
-                <x-choices label="Spare Part Name" wire:model.live="sparepartName" :options="$spareparts" option-label="part_name" option-value="part_name"
-                    single searchable search-function="searchSparepart" placeholder="Search Spare Part..." no-progress debounce="50ms" />
-            </div>
-            <div class="lg:col-span-2">
-                <x-input label="Spare Part Quantity" wire:model="sparepartQty" type="number" />
+            <div class="md:col-span-full space-y-2 mt-2 border p-4 rounded-lg bg-base-200/50">
+                <div class="flex items-center gap-4 border-b pb-2">
+                    <span class="font-semibold text-sm">Spare Parts Used</span>
+                    <x-button wire:click.prevent="addSparepart" icon="o-plus" class="btn-sm btn-ghost text-primary"
+                        tooltip="Add Sparepart" />
+                </div>
+                @foreach($usedSpareparts as $index => $sp)
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-2 items-end">
+                        <div class="md:col-span-8">
+                            <x-choices label="Spare Part {{ $index + 1 }}" wire:model="usedSpareparts.{{ $index }}.spare_part_id"
+                                :options="$spareparts" option-label="part_name" option-value="id" searchable search-function="searchSparepart" placeholder="Select Spare Part..." single no-progress debounce="50ms" />
+                        </div>
+                        <div class="md:col-span-3">
+                            <x-input label="Qty" wire:model="usedSpareparts.{{ $index }}.qty" type="number" min="1" />
+                        </div>
+                        <div class="md:col-span-1 pb-1">
+                            @if(count($usedSpareparts) > 1)
+                                <x-button icon="o-trash" wire:click.prevent="removeSparepart({{ $index }})"
+                                    class="btn-square btn-error btn-sm text-white dark:text-gray-700 w-full" tooltip="Remove" />
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="md:col-span-2">

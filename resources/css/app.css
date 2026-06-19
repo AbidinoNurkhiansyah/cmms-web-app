@@ -67,10 +67,10 @@ body.sidebar-collapsed .menu li > details > summary {
 }
 
 /* Sembunyikan scrollbar di sidebar saat minimize agar posisi icon tidak tergeser oleh lebar scrollbar */
-body.sidebar-collapsed .drawer-side {
+body.sidebar-collapsed .drawer-side > div {
     scrollbar-width: none; /* Firefox */
 }
-body.sidebar-collapsed .drawer-side::-webkit-scrollbar {
+body.sidebar-collapsed .drawer-side > div::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
 }
 

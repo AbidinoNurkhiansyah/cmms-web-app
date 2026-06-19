@@ -4,29 +4,65 @@ use App\Services\CartyService;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use Mary\Traits\Toast;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CartyExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 new class extends Component {
     use WithPagination, Toast;
 
     public string $search = '';
     public string $statusFilter = '';
+    public string $dateFilter = '';
+    public bool $filterDrawer = false;
     public bool $deleteModal = false;
     public ?int $deleteId = null;
+
+    // Export properties
+    public bool $exportModal = false;
+    public string $exportStartDate = '';
+    public string $exportEndDate = '';
+    public string $exportFormat = 'excel';
+
+    public function processExport()
+    {
+        $fileName = 'maintenance_records_' . now()->format('Y_m_d_His');
+        
+        $export = new CartyExport($this->search, $this->statusFilter, $this->exportStartDate, $this->exportEndDate);
+
+        if ($this->exportFormat === 'pdf') {
+            $records = $export->collection();
+            $pdf = Pdf::loadView('exports.carty-pdf', [
+                'records' => $records,
+                'startDate' => $this->exportStartDate,
+                'endDate' => $this->exportEndDate,
+            ])->setPaper('a4', 'landscape');
+            
+            return response()->streamDownload(fn () => print($pdf->output()), $fileName . '.pdf');
+        }
+
+        return Excel::download($export, $fileName . '.xlsx');
+    }
 
     public function updatedSearch(): void
     {
         $this->resetPage();
     }
-    
+
     public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDateFilter(): void
     {
         $this->resetPage();
     }
 
     public function with(CartyService $service): array
     {
-        $records = $service->getPaginated(15, $this->search, $this->statusFilter);
-        $records->getCollection()->transform(function($item, $key) use ($records) {
+        $records = $service->getPaginated(15, $this->search, $this->statusFilter, $this->dateFilter);
+        $records->getCollection()->transform(function ($item, $key) use ($records) {
             $item->index = $records->firstItem() + $key;
             return $item;
         });
@@ -58,35 +94,54 @@ new class extends Component {
     <x-header title="Carty / Maintenance" separator>
         <x-slot:actions>
             <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                <!-- Mobile Row 1 / Desktop Col 1: Status Filter -->
-                <div class="w-full sm:w-40">
-                    <x-select 
-                        wire:model.live="statusFilter" 
-                        :options="[['id'=>'','name'=>'All Status'],['id'=>'Open','name'=>'Open'],['id'=>'Close','name'=>'Close']]" 
-                        option-value="id" option-label="name" 
-                    />
+                <!-- Search -->
+                <div class="flex-1 sm:w-60">
+                    <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable
+                        icon="o-magnifying-glass" />
                 </div>
                 
-                <!-- Mobile Row 2 / Desktop Col 2 & 3: Search and Add -->
-                <div class="flex flex-row w-full sm:w-auto gap-2">
-                    <div class="flex-1 sm:w-64">
-                        <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
-                    </div>
-                    @can('wr.create')
-                        <div class="flex-none">
-                            <x-button icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}">
-                                <span class="hidden sm:inline">Add Carty</span>
-                            </x-button>
-                        </div>
-                    @endcan
+                <!-- Filter Toggle -->
+                <div class="flex-none">
+                    <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost" tooltip="Filters" />
                 </div>
+
+                <!-- Export -->
+                <div class="flex-none">
+                    <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white" tooltip="Export Data">
+                        <span class="hidden sm:inline">Export</span>
+                    </x-button>
+                </div>
+
+                <!-- Add -->
+                @can('wr.create')
+                    <div class="flex-none">
+                        <x-button icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}">
+                            <span class="hidden sm:inline">Add</span>
+                        </x-button>
+                    </div>
+                @endcan
             </div>
         </x-slot:actions>
     </x-header>
 
+    <!-- Accordion Filters -->
+    <div x-show="$wire.filterDrawer" x-collapse>
+        <div class="mb-4 p-4 rounded-xl bg-base-100 border border-base-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                <div class="flex-1">
+                    <x-input label="Date" type="date" wire:model.live="dateFilter" icon="o-calendar" />
+                </div>
+                <div class="flex-1">
+                    <x-select label="Status" wire:model.live="statusFilter" :options="[['id' => '', 'name' => 'All Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]" option-value="id" option-label="name" />
+                </div>
+                <div class="flex-none">
+                    <x-button label="Clear Filters" icon="o-x-mark" wire:click="$set('dateFilter', ''); $set('statusFilter', ''); $set('search', '')" class="btn-ghost" />
+                </div>
+            </div>
+        </div>
+    </div>
     <x-card>
-        <x-table striped
-            :headers="[
+        <x-table striped :headers="[
                 ['key' => 'index',        'label' => '#'],
                 ['key' => 'Date',         'label' => 'Date'],
                 ['key' => 'LineName',     'label' => 'Line'],
@@ -96,55 +151,53 @@ new class extends Component {
                 ['key' => 'DownTime',     'label' => 'DownTime (m)', 'class' => 'text-center'],
                 ['key' => 'PIC',          'label' => 'PIC'],
                 ['key' => 'action',       'label' => 'Action', 'class' => 'text-center'],
-            ]"
-            :rows="$records"
-            with-pagination
-            link="/maintenance/cardty/{id}"
-        >
+            ]" :rows="$records" with-pagination link="/maintenance/cardty/{id}">
             @scope('cell_Date', $r)
-                {{ $r->Date ? $r->Date->format('Y-m-d') : '-' }}
+            {{ $r->Date ? $r->Date->format('Y-m-d') : '-' }}
             @endscope
 
             @scope('cell_Status', $r)
-                @php
-                    $status = strtolower($r->Status);
-                    
-                    [$bgColor, $textColor, $dotColor] = match($status) {
-                        'permanent' => ['bg-blue-100 dark:bg-blue-900/30', 'text-blue-600 dark:text-blue-400', 'bg-blue-500'],
-                        'temporary' => ['bg-orange-100 dark:bg-orange-900/30', 'text-orange-600 dark:text-orange-400', 'bg-orange-500'],
-                        default => ['bg-gray-100 dark:bg-gray-800', 'text-gray-600 dark:text-gray-400', 'bg-gray-500'],
-                    };
-                @endphp
-                <div class="text-center">
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $bgColor }} {{ $textColor }}">
-                        <span class="w-1.5 h-1.5 rounded-full {{ $dotColor }}"></span>
-                        {{ $r->Status }}
-                    </div>
+            @php
+                $status = strtolower($r->Status);
+
+                [$bgColor, $textColor, $dotColor] = match ($status) {
+                    'permanent' => ['bg-blue-100 dark:bg-blue-900/30', 'text-blue-600 dark:text-blue-400', 'bg-blue-500'],
+                    'temporary' => ['bg-orange-100 dark:bg-orange-900/30', 'text-orange-600 dark:text-orange-400', 'bg-orange-500'],
+                    default => ['bg-gray-100 dark:bg-gray-800', 'text-gray-600 dark:text-gray-400', 'bg-gray-500'],
+                };
+            @endphp
+            <div class="text-center">
+                <div
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $bgColor }} {{ $textColor }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $dotColor }}"></span>
+                    {{ $r->Status }}
                 </div>
+            </div>
             @endscope
 
             @scope('cell_PIC', $r)
-                @if(is_array($r->pics) && count($r->pics) > 0)
-                    {{ implode(', ', $r->pics) }}
-                @else
-                    {{ $r->PIC ?? '-' }}
-                @endif
+            @if(is_array($r->pics) && count($r->pics) > 0)
+                {{ implode(', ', $r->pics) }}
+            @else
+                {{ $r->PIC ?? '-' }}
+            @endif
             @endscope
 
             @scope('cell_DownTime', $r)
-                <div class="text-center">{{ $r->DownTime }}</div>
+            <div class="text-center">{{ $r->DownTime }}</div>
             @endscope
 
             @scope('cell_action', $r)
-                <div class="flex gap-1 justify-center">
-                    @can('wr.update')
-                        <x-button icon="o-pencil-square" class="btn-ghost btn-xs" link="{{ route('maintenance.cardty.edit', $r->id) }}" @click.stop="" />
-                    @endcan
-                    @can('wr.delete')
-                        <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
-                            wire:click.stop="confirmDelete({{ $r->id }})" />
-                    @endcan
-                </div>
+            <div class="flex gap-1 justify-center">
+                @can('wr.update')
+                    <x-button icon="o-pencil-square" class="btn-ghost btn-xs"
+                        link="{{ route('maintenance.cardty.edit', $r->id) }}" @click.stop="" />
+                @endcan
+                @can('wr.delete')
+                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error"
+                        wire:click.stop="confirmDelete({{ $r->id }})" />
+                @endcan
+            </div>
             @endscope
         </x-table>
     </x-card>
@@ -155,13 +208,31 @@ new class extends Component {
             <x-icon name="o-exclamation-triangle" class="w-16 h-16 text-error" />
             <div>
                 <h3 class="font-bold text-lg">Hapus Record Ini?</h3>
-                <p class="text-base-content/70 mt-2">Data yang sudah dihapus tidak dapat dikembalikan lagi. Anda yakin?</p>
+                <p class="text-base-content/70 mt-2">Data yang sudah dihapus tidak dapat dikembalikan lagi. Anda yakin?
+                </p>
             </div>
         </div>
-        
+
         <x-slot:actions>
             <x-button label="Batal" wire:click="$set('deleteModal', false)" class="btn-ghost" />
             <x-button label="Ya, Hapus" wire:click="deleteRecord" class="btn-error" spinner="deleteRecord" />
+        </x-slot:actions>
+    </x-modal>
+
+    <!-- Export Options Modal -->
+    <x-modal wire:model="exportModal" title="Export Options" separator>
+        <div class="space-y-4 py-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-input label="Start Date" type="date" wire:model="exportStartDate" icon="o-calendar" />
+                <x-input label="End Date" type="date" wire:model="exportEndDate" icon="o-calendar" />
+            </div>
+            
+            <x-radio label="Export Format" wire:model="exportFormat" :options="[['id' => 'excel', 'name' => 'Excel (.xlsx)'], ['id' => 'pdf', 'name' => 'PDF Document (.pdf)']]" option-value="id" option-label="name" />
+        </div>
+
+        <x-slot:actions>
+            <x-button label="Cancel" @click="$wire.exportModal = false" class="btn-ghost" />
+            <x-button label="Download" wire:click="processExport" icon="o-arrow-down-tray" class="btn-success text-white" spinner="processExport" />
         </x-slot:actions>
     </x-modal>
 </div>
