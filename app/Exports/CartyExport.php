@@ -103,12 +103,11 @@ class CartyExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         $sparePartsNameStr = '-';
         $sparePartsQtyStr = '-';
         if ($carty->spareParts->isNotEmpty()) {
-            $names = $carty->spareParts->pluck('part_name')->toArray();
-            $qtys = $carty->spareParts->map(function ($part) {
-                return $part->pivot->qty;
+            $names = $carty->spareParts->map(function ($part) {
+                return $part->part_name . ' (' . $part->pivot->qty . ')';
             })->toArray();
             $sparePartsNameStr = implode(', ', $names);
-            $sparePartsQtyStr = implode(', ', $qtys);
+            $sparePartsQtyStr = $carty->spareParts->sum('pivot.qty');
         } elseif ($carty->sparepartName) {
             $sparePartsNameStr = $carty->sparepartName;
             $sparePartsQtyStr = $carty->sparepartQty ?? 0;

@@ -8,9 +8,9 @@ class CartyService
 {
     public function __construct(private CartyRepositoryInterface $repo) {}
 
-    public function getPaginated(int $perPage = 15, string $search = '', string $status = '', string $date = '')
+    public function getPaginated(int $perPage = 15, string $search = '', string $status = '', string $startDate = '', string $endDate = '')
     {
-        return $this->repo->getAllPaginated($perPage, $search, $status, $date);
+        return $this->repo->getAllPaginated($perPage, $search, $status, $startDate, $endDate);
     }
 
     public function getById(int $id)

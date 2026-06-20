@@ -7,7 +7,7 @@ use App\Repositories\Contracts\CartyRepositoryInterface;
 
 class CartyRepository implements CartyRepositoryInterface
 {
-    public function getAllPaginated(int $perPage = 15, string $search = '', string $status = '', string $date = '')
+    public function getAllPaginated(int $perPage = 15, string $search = '', string $status = '', string $startDate = '', string $endDate = '')
     {
         $query = Carty::query()->orderByDesc('Date')->orderByDesc('id');
 
@@ -24,8 +24,12 @@ class CartyRepository implements CartyRepositoryInterface
             $query->where('Status', $status);
         }
 
-        if ($date) {
-            $query->whereDate('Date', $date);
+        if ($startDate) {
+            $query->whereDate('Date', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('Date', '<=', $endDate);
         }
 
         return $query->paginate($perPage);
