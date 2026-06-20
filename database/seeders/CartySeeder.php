@@ -19,13 +19,13 @@ class CartySeeder extends Seeder
             [
                 'Date' => Carbon::now()->subDays(5)->format('Y-m-d'),
                 'groupline' => 'MTC B',
-                'LineName' => 'BRG',
-                'MachineNo' => '11HSID002',
-                'MachineName' => 'OR R/W SUPER FINISH MACHINE',
+                'LineName' => 'BRG DAC',
+                'MachineNo' => '12HSID018',
+                'MachineName' => 'OR SUPER FINISH MACHINE 1',
                 'DownTime' => 15,
                 'Problem' => 'Alarm coolant low level',
                 'Action' => 'Kuras coolant SF 36 & ganti filter 1 micron',
-                'Status' => 'Close',
+                'Status' => 'Permanent',
                 'Shift' => 1,
                 'pics' => ['Andy'],
                 // These are injected dynamically in the loop, but added here for your reference:
@@ -39,78 +39,78 @@ class CartySeeder extends Seeder
             [
                 'Date' => Carbon::now()->subDays(4)->format('Y-m-d'),
                 'groupline' => 'MTC A',
-                'LineName' => 'BRG',
+                'LineName' => 'HT',
                 'MachineNo' => '11FBID003',
                 'MachineName' => 'HEAT TREATMENT',
                 'DownTime' => 90,
                 'Problem' => 'Counter tidak bisa menghitung',
                 'Action' => 'Cek PLC, tray di posisi 2 dua tidak rev detect, tray di posisi 1 di ON kan',
-                'Status' => 'Close',
+                'Status' => 'Permanent',
                 'Shift' => 1,
                 'pics' => ['Budi'],
             ],
             [
                 'Date' => Carbon::now()->subDays(3)->format('Y-m-d'),
                 'groupline' => 'MTC A',
-                'LineName' => 'BRG',
-                'MachineNo' => '12KCID010',
+                'LineName' => 'BRG DAC',
+                'MachineNo' => '12KCID020',
                 'MachineName' => 'PART WASHING MACHINE',
                 'DownTime' => 10,
                 'Problem' => 'Cylinder pneumatic transfer up / down tidak mau turun',
                 'Action' => 'Setting sensor pneumatik',
-                'Status' => 'Open',
+                'Status' => 'Temporary',
                 'Shift' => 2,
                 'pics' => ['Candra'],
             ],
             [
                 'Date' => Carbon::now()->subDays(2)->format('Y-m-d'),
                 'groupline' => 'MTC A',
-                'LineName' => 'STC',
+                'LineName' => 'STC 2',
                 'MachineNo' => '11ORID002',
                 'MachineName' => 'BROACHING 2',
                 'DownTime' => 210,
                 'Problem' => 'Part shift left-right abnormal , hand clamp-unclamp turn abnormal',
                 'Action' => 'Ganti modular cylinder part enter ADV-Ret , setting antara part shift Right-left dengan turn 1',
-                'Status' => 'Close',
+                'Status' => 'Permanent',
                 'Shift' => 3,
                 'pics' => ['Deni'],
             ],
             [
                 'Date' => Carbon::now()->subDays(1)->format('Y-m-d'),
                 'groupline' => 'MTC A',
-                'LineName' => 'BRG',
-                'MachineNo' => '11FBID002',
+                'LineName' => 'HT',
+                'MachineNo' => '11FBID003',
                 'MachineName' => 'HEAT TREATMENT',
                 'DownTime' => 15,
                 'Problem' => 'Filter panel heatreatment kotor',
                 'Action' => 'Penggantian filter Heat treatment panel',
-                'Status' => 'Close',
+                'Status' => 'Permanent',
                 'Shift' => 1,
                 'pics' => ['Eko'],
             ],
             [
                 'Date' => Carbon::now()->format('Y-m-d'),
                 'groupline' => 'MTC B',
-                'LineName' => 'EPS',
+                'LineName' => 'EPS 1',
                 'MachineNo' => '11OMID003',
                 'MachineName' => 'MACHINING CENTER OP20.1',
                 'DownTime' => 60,
                 'Problem' => 'Tool nabrak pin clamper',
                 'Action' => 'Buat pin clamper baru dan kalibrasi',
-                'Status' => 'Open',
+                'Status' => 'Temporary',
                 'Shift' => 2,
                 'pics' => ['Fajar'],
             ],
             [
                 'Date' => Carbon::now()->format('Y-m-d'),
                 'groupline' => 'MTC B',
-                'LineName' => 'BRG',
+                'LineName' => 'TURNING 1',
                 'MachineNo' => '11LNID012',
                 'MachineName' => 'OR LATHE MACHINE',
                 'DownTime' => 5,
                 'Problem' => 'Coolant pump motor circuit breaker trip',
                 'Action' => 'Reset NFB (di ON kan kembali) dan cek overload',
-                'Status' => 'Close',
+                'Status' => 'Permanent',
                 'Shift' => 1,
                 'pics' => ['Galih'],
             ]
@@ -120,7 +120,7 @@ class CartySeeder extends Seeder
         $start = Carbon::now()->startOfYear();
         $end = Carbon::now()->month(6)->endOfMonth();
 
-        $problemTypes = ['Electrical', 'Mechanical', 'Other'];
+        $problemTypes = ['Electrical', 'Mechanical'];
         $sparepartNames = \App\Models\SparePart::query()->whereNotNull('part_name')->pluck('part_name')->toArray();
         if (empty($sparepartNames)) {
             $sparepartNames = ['BEARING 6205', 'O-RING 12'];
@@ -134,13 +134,21 @@ class CartySeeder extends Seeder
         $assetIds = \App\Models\Asset::pluck('id')->toArray();
         $sparePartIds = \App\Models\SparePart::pluck('id')->toArray();
 
-        // Seed 200 records to deeply test pagination and chart simulations
-        for ($i = 0; $i < 200; $i++) {
+        // Seed 500 records to test pagination and chart simulations
+        for ($i = 0; $i < 500; $i++) {
             // Pick a random template
             $template = $data[array_rand($data)];
             
-            // Randomize the date between Jan and June
-            $randomTimestamp = rand($start->timestamp, $end->timestamp);
+            // Randomize the date
+            // Ensure about 50% of the data falls specifically in the current month for chart demonstration
+            if (rand(1, 100) <= 50) {
+                $monthStart = Carbon::now()->startOfMonth()->timestamp;
+                $monthEnd = Carbon::now()->endOfMonth()->timestamp;
+                $randomTimestamp = rand($monthStart, $monthEnd);
+            } else {
+                $randomTimestamp = rand($start->timestamp, $end->timestamp);
+            }
+
             $template['Date'] = Carbon::createFromTimestamp($randomTimestamp)->format('Y-m-d');
             
             // Time fields

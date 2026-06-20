@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('MachineName', 150)->nullable();
             
             // Legacy Detailed Fields
-            $table->enum('typeofproblem', ['Electrical', 'Mechanical', 'Other'])->nullable();
+            $table->string('typeofproblem', 50)->nullable();
             $table->string('sparepartName', 100)->nullable();
             $table->integer('sparepartQty')->nullable()->default(0);
             
