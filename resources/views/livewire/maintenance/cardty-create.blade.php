@@ -11,12 +11,12 @@ use Illuminate\Support\Collection;
 
 new class extends Component {
     use WithFileUploads, Toast;
+    use \App\Livewire\Traits\WithAssetSelection;
+    use \App\Livewire\Traits\WithSpareparts;
+    use \App\Livewire\Traits\WithPersonnel;
 
     public string $Date = '';
     public string $groupline = '';
-    public string $LineName = '';
-    public string $MachineNo = '';
-    public string $MachineName = '';
     public string $DownTime = '0';
     public string $Problem = '';
     public string $Action = '';
@@ -25,28 +25,15 @@ new class extends Component {
     public string $start_time = '';
     public string $finish_time = '';
 
-    // Relational fields
-    public ?int $asset_id = null;
-
     // Legacy Form Fields
     public string $typeofproblem = '';
-    public string $sparepartName = '';
-    public ?int $sparepartQty = null;
     public string $Cause = '';
     public string $worktime = '0';
-
-    public array $pics = ['']; // Dynamic PIC array
-    public array $usedSpareparts = [['spare_part_id' => '', 'qty' => 1]]; // Dynamic Spareparts array
 
     public $filebefore1;
     public $filebefore2;
     public $fileafter1;
     public $fileafter2;
-
-    public array $lineNames = [];
-    public Collection $machines;
-    public Collection $spareparts;
-    public Collection $users;
 
     public function mount(): void
     {
@@ -54,105 +41,15 @@ new class extends Component {
 
         $this->Date = date('Y-m-d');
         $this->Status = 'Temporary';
-        $this->lineNames = Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
-        $this->spareparts = SparePart::all();
-        $this->machines = collect();
-        $this->users = User::all();
-    }
 
-    public function searchLine(string $value = '')
-    {
-        if (empty($value)) {
-            $this->lineNames = Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
-        } else {
-            $this->lineNames = Asset::whereNotNull('line_name')
-                ->where([['line_name', 'like', "%{$value}%"]])
-                ->distinct()
-                ->pluck('line_name')
-                ->toArray();
+        $this->mountWithAssetSelection();
+        $this->mountWithSpareparts();
+        $this->mountWithPersonnel();
+
+        // Initialize empty pics array if needed
+        if (empty($this->pics)) {
+            $this->pics = [''];
         }
-    }
-
-    public function searchMachine(string $value = '')
-    {
-        if ($this->LineName) {
-            $query = Asset::where(['line_name' => $this->LineName]);
-            if (!empty($value)) {
-                $query->where([['machine_name', 'like', "%{$value}%"]]);
-            }
-            $this->machines = $query->get();
-        } else {
-            $this->machines = collect();
-        }
-    }
-
-    public function searchSparepart(string $value = '')
-    {
-        if (empty($value)) {
-            $this->spareparts = SparePart::all();
-        } else {
-            $this->spareparts = SparePart::where([['part_name', 'like', "%{$value}%"]])->get();
-        }
-    }
-
-    public function searchUser(string $value = '')
-    {
-        if (empty($value)) {
-            $this->users = User::all();
-        } else {
-            $this->users = User::where([['name', 'like', "%{$value}%"]])->get();
-        }
-    }
-
-    public function updatedLineName($value)
-    {
-        $this->asset_id = null;
-        $this->MachineNo = '';
-        $this->MachineName = '';
-        
-        if ($value) {
-            $this->machines = Asset::where(['line_name' => $value])->get();
-        } else {
-            $this->machines = collect();
-        }
-    }
-
-    public function updatedAssetId($value)
-    {
-        if ($value) {
-            $asset = Asset::find($value);
-            if ($asset) {
-                $this->MachineNo = $asset->asset_no ?? '';
-                $this->MachineName = $asset->machine_name ?? '';
-            }
-        } else {
-            $this->MachineNo = '';
-            $this->MachineName = '';
-        }
-    }
-
-
-
-    public function addPic()
-    {
-        $this->pics[] = '';
-    }
-
-    public function removePic($index)
-    {
-        unset($this->pics[$index]);
-        $this->pics = array_values($this->pics);
-    }
-
-    public function addSparepart()
-    {
-        $this->usedSpareparts[] = ['spare_part_id' => '', 'qty' => 1];
-    }
-
-    public function removeSparepart($index)
-    {
-        unset($this->usedSpareparts[$index]);
-        $this->usedSpareparts = array_values($this->usedSpareparts);
     }
 
     public function save(CartyService $service)
