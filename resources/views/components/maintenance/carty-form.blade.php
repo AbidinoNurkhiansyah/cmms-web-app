@@ -7,7 +7,7 @@
                 option-value="id" option-label="name" />
             <x-select label="Group Line" wire:model="groupline" :options="[['id' => 'MTC A', 'name' => 'MTC A'], ['id' => 'MTC B', 'name' => 'MTC B']]" option-value="id" option-label="name" placeholder="Select Group Line" />
 
-            <x-choices label="Line Name" wire:model.live="LineName" :options="collect($lineNames)->map(fn($l) => ['id' => $l, 'name' => $l])" option-value="id" option-label="name" single searchable
+            <x-choices label="Line Name" wire:model.live="LineName" :options="$lineNames" option-value="name" option-label="name" single searchable
                 search-function="searchLine" placeholder="Select Line..." no-progress debounce="50ms" />
             <x-choices label="Machine Name" wire:model.live="asset_id" :options="$machines" option-label="machine_name"
                 option-value="id" single searchable search-function="searchMachine" placeholder="Select Machine..."

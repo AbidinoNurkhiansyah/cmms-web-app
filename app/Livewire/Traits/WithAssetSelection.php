@@ -16,7 +16,9 @@ trait WithAssetSelection
 
     public function mountWithAssetSelection(): void
     {
-        $this->lineNames = Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
+        $lines = Asset::whereNotNull('line_name')->distinct()->pluck('line_name');
+        $this->lineNames = $lines->map(fn($line) => ['name' => $line])->toArray();
+        
         if ($this->LineName) {
             $this->machines = Asset::where(['line_name' => $this->LineName])->get();
             $matchedAsset = $this->machines->first(fn($asset) => $asset->asset_no === $this->MachineNo);
@@ -31,14 +33,14 @@ trait WithAssetSelection
     public function searchLine(string $value = '')
     {
         if (empty($value)) {
-            $this->lineNames = Asset::whereNotNull('line_name')->distinct()->pluck('line_name')->toArray();
+            $lines = Asset::whereNotNull('line_name')->distinct()->pluck('line_name');
         } else {
-            $this->lineNames = Asset::whereNotNull('line_name')
+            $lines = Asset::whereNotNull('line_name')
                 ->where('line_name', 'like', "%{$value}%")
                 ->distinct()
-                ->pluck('line_name')
-                ->toArray();
+                ->pluck('line_name');
         }
+        $this->lineNames = $lines->map(fn($line) => ['name' => $line])->toArray();
     }
 
     public function searchMachine(string $value = '')
