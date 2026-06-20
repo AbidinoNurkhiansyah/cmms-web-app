@@ -160,7 +160,7 @@ new class extends Component {
 
             <!-- Problem & Action -->
             <div class="mb-6">
-                @include('livewire.maintenance.partials.show-problem-action')
+                @include('livewire.maintenance.cardty.partials.show-problem-action')
             </div>
 
         </div>
@@ -207,7 +207,7 @@ new class extends Component {
 
             <!-- Images -->
             <div class="mb-6">
-                @include('livewire.maintenance.partials.show-images')
+                @include('livewire.maintenance.cardty.partials.show-images')
             </div>
         </div>
     </div>

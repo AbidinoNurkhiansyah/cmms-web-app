@@ -30,10 +30,10 @@ Route::middleware('auth')->group(function () {
     Volt::route('/profile', 'users.profile')->name('profile');
 
     // Maintenance - Cardty
-    Volt::route('/maintenance/cardty', 'maintenance.cardty-index')->name('maintenance.cardty');
-    Volt::route('/maintenance/cardty/create', 'maintenance.cardty-create')->name('maintenance.cardty.create');
-    Volt::route('/maintenance/cardty/{id}/edit', 'maintenance.cardty-edit')->name('maintenance.cardty.edit');
-    Volt::route('/maintenance/cardty/{id}', 'maintenance.cardty-show')->name('maintenance.cardty.show');
+    Volt::route('/maintenance/cardty', 'maintenance.cardty.index')->name('maintenance.cardty');
+    Volt::route('/maintenance/cardty/create', 'maintenance.cardty.create')->name('maintenance.cardty.create');
+    Volt::route('/maintenance/cardty/{id}/edit', 'maintenance.cardty.edit')->name('maintenance.cardty.edit');
+    Volt::route('/maintenance/cardty/{id}', 'maintenance.cardty.show')->name('maintenance.cardty.show');
 
     // Checksheet
     Volt::route('/checksheet', 'checksheet.index')->name('checksheet.index');
@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('/andon', 'andon.index')->name('andon.index');
 
     // One Hour Over
-    Volt::route('/one-hour-over', 'one-hour-over.index')->name('one-hour-over.index');
+    Volt::route('/maintenance/one-hour-over', 'maintenance.one-hour-over.index')->name('maintenance.one-hour-over.index');
 
     // Administration (KYT / Safety)
     Volt::route('/administration/kyt', 'administration.kyt-index')->name('administration.kyt');
