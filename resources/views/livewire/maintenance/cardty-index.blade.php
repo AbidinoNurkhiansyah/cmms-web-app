@@ -13,7 +13,8 @@ new class extends Component {
 
     public string $search = '';
     public string $statusFilter = '';
-    public string $dateFilter = '';
+    public string $startDateFilter = '';
+    public string $endDateFilter = '';
     public bool $filterDrawer = false;
     public bool $deleteModal = false;
     public ?int $deleteId = null;
@@ -100,14 +101,25 @@ new class extends Component {
         $this->resetPage();
     }
 
-    public function updatedDateFilter(): void
+    public function updatedStartDateFilter($value): void
     {
+        if ($value && empty($this->endDateFilter)) {
+            $this->endDateFilter = $value;
+        }
+        $this->resetPage();
+    }
+
+    public function updatedEndDateFilter($value): void
+    {
+        if ($value && empty($this->startDateFilter)) {
+            $this->startDateFilter = $value;
+        }
         $this->resetPage();
     }
 
     public function with(CartyService $service): array
     {
-        $records = $service->getPaginated(15, $this->search, $this->statusFilter, $this->dateFilter);
+        $records = $service->getPaginated(15, $this->search, $this->statusFilter, $this->startDateFilter, $this->endDateFilter);
         $records->getCollection()->transform(function ($item, $key) use ($records) {
             $item->index = $records->firstItem() + $key;
             return $item;
@@ -137,7 +149,10 @@ new class extends Component {
 ?>
 
 <div>
-    <x-header title="Carty / Maintenance" separator>
+    
+
+
+<x-header title="Carty / Maintenance" separator>
         <x-slot:actions>
             <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
                 <!-- Search -->
@@ -171,21 +186,23 @@ new class extends Component {
             </div>
         </x-slot:actions>
     </x-header>
-
     <!-- Accordion Filters -->
     <div x-show="$wire.filterDrawer" x-collapse>
         <div class="mb-4 p-4 rounded-xl bg-base-100 border border-base-200 shadow-sm">
             <div class="flex flex-col sm:flex-row gap-4 items-end">
                 <div class="flex-1">
-                    <x-input label="Date" type="date" wire:model.live="dateFilter" icon="o-calendar" />
+                    <x-input label="Start Date" type="date" wire:model.live="startDateFilter" />
                 </div>
                 <div class="flex-1">
-                    <x-select label="Status" wire:model.live="statusFilter" :options="[['id' => '', 'name' => 'All Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]"
+                    <x-input label="End Date" type="date" wire:model.live="endDateFilter" />
+                </div>
+                <div class="flex-1">
+                    <x-select label="Status" wire:model.live="statusFilter" :options="[['id' => '', 'name' => 'All Status'], ['id' => 'Permanent', 'name' => 'Permanent'], ['id' => 'Temporary', 'name' => 'Temporary']]"
                         option-value="id" option-label="name" />
                 </div>
                 <div class="flex-none">
                     <x-button label="Clear Filters" icon="o-x-mark"
-                        wire:click="$set('dateFilter', ''); $set('statusFilter', ''); $set('search', '')"
+                        wire:click="$set('startDateFilter', ''); $set('endDateFilter', ''); $set('statusFilter', ''); $set('search', '')"
                         class="btn-ghost" />
                 </div>
             </div>
@@ -239,7 +256,7 @@ new class extends Component {
             @endscope
 
             @scope('cell_action', $r)
-            <div class="flex gap-1 justify-center">
+            <div class="text-center whitespace-nowrap">
                 @can('wr.update')
                     <x-button icon="o-pencil-square" class="btn-ghost btn-xs"
                         link="{{ route('maintenance.cardty.edit', $r->id) }}" @click.stop="" />
@@ -273,19 +290,13 @@ new class extends Component {
     <!-- Export Options Modal -->
     <x-modal wire:model="exportModal" title="Export Options" separator>
         <div class="space-y-4 py-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full items-end">
                 <x-select label="Line Name" wire:model.live="exportLineName" :options="$exportLineNames" option-value="id" option-label="name" placeholder="Semua Line" />
                 <x-select label="Machine Name" wire:model="exportMachineName" :options="$exportMachines" option-value="machine_name" option-label="machine_name" placeholder="Semua Mesin" :disabled="!$exportLineName" />
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-select label="Total Stop Line" wire:model="exportTotalStopLine" :options="[['id' => '', 'name' => 'Semua'], ['id' => '30', 'name' => '>= 30 Menit'], ['id' => '60', 'name' => '>= 60 Menit']]" option-value="id" option-label="name" />
-                <x-select label="Status" wire:model="exportStatus" :options="[['id' => '', 'name' => 'Semua Status'], ['id' => 'Open', 'name' => 'Open'], ['id' => 'Close', 'name' => 'Close']]" option-value="id" option-label="name" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-input label="Start Date" type="date" wire:model="exportStartDate" icon="o-calendar" />
-                <x-input label="End Date" type="date" wire:model="exportEndDate" icon="o-calendar" />
+                <x-select label="Status" wire:model="exportStatus" :options="[['id' => '', 'name' => 'Semua Status'], ['id' => 'Permanent', 'name' => 'Permanent'], ['id' => 'Temporary', 'name' => 'Temporary']]" option-value="id" option-label="name" />
+                <x-input label="Start Date" type="date" wire:model="exportStartDate" />
+                <x-input label="End Date" type="date" wire:model="exportEndDate" />
             </div>
 
             <x-radio label="Export Format" wire:model="exportFormat" :options="[['id' => 'excel', 'name' => 'Excel (.xlsx)'], ['id' => 'pdf', 'name' => 'PDF Document (.pdf)']]" option-value="id" option-label="name" />

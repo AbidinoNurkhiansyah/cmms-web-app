@@ -22,7 +22,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="lg:col-span-2">
                 <x-select label="Type of Problem" wire:model="typeofproblem"
-                    :options="[['id' => 'Electrical', 'name' => 'Electrical'], ['id' => 'Mechanical', 'name' => 'Mechanical'], ['id' => 'Other', 'name' => 'Other']]"
+                    :options="[['id' => 'Electrical', 'name' => 'Electrical'], ['id' => 'Mechanical', 'name' => 'Mechanical']]"
                     option-value="id" option-label="name" placeholder="Select" />
             </div>
             <div class="lg:col-span-2">
