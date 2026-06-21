@@ -4,28 +4,31 @@
         <x-input label="Group Name" wire:model="group_name" />
         
         <div class="col-span-2 grid grid-cols-2 gap-3">
-            <x-choices-offline 
+            <x-choices 
                 label="Line Name" 
                 wire:model.live="LineName" 
-                :options="$this->lineNames" 
+                :options="$lineNames" 
                 option-value="name" 
                 option-label="name" 
-                searchable 
+                search-function="searchLine" 
+                debounce="300ms" 
+                searchable
                 single />
-            <x-choices-offline 
+            <x-choices 
                 label="Machine" 
                 wire:model="MachineName" 
-                :options="$this->machines" 
+                :options="$machines" 
                 option-value="machine_name" 
                 option-label="machine_name" 
-                searchable 
+                search-function="searchMachine" 
+                debounce="300ms" 
+                :disabled="empty($LineName)"
+                searchable
                 single />
         </div>
-
-        <x-textarea label="Problem" wire:model="problem" class="col-span-2" rows="3" />
-        <x-select label="Status" wire:model="status" class="col-span-2"
-            :options="[['id'=>'Open','name'=>'Open'],['id'=>'Closed','name'=>'Closed']]"
-            option-value="id" option-label="name" />
+        <div class="col-span-2">
+            <x-textarea label="Problem" wire:model="problem" rows="3" />
+        </div>
             
         <div class="col-span-2 grid grid-cols-2 gap-3 mt-2 border-t pt-2">
             <div>

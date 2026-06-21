@@ -154,51 +154,65 @@ new class extends Component {
 
 <x-header title="Carty / Maintenance" separator>
         <x-slot:actions>
-            <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                <!-- Search -->
-                <div class="flex-1 sm:w-60">
-                    <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable
-                        icon="o-magnifying-glass" />
+            <!-- Desktop Actions -->
+            <div class="hidden sm:flex flex-row items-center gap-2">
+                <div class="w-60">
+                    <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
                 </div>
-
-                <!-- Filter Toggle -->
-                <div class="flex-none">
-                    <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost"
-                        tooltip="Filters" />
+                <div class="w-20">
+                    <x-select wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" />
                 </div>
-
-                <!-- Export -->
-                <div class="flex-none">
-                    <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white"
-                        tooltip="Export Data">
-                        <span class="hidden sm:inline">Export</span>
-                    </x-button>
-                </div>
-
-                <!-- Add -->
+                <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost" tooltip="Filters" />
+                <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white" tooltip="Export Data">
+                    <span class="inline">Export</span>
+                </x-button>
                 @can('wr.create')
-                    <div class="flex-none">
-                        <x-button icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}">
-                            <span class="hidden sm:inline">Add</span>
-                        </x-button>
-                    </div>
+                    <x-button icon="o-plus" class="btn-primary" link="{{ route('maintenance.cardty.create') }}">
+                        <span class="inline">Add</span>
+                    </x-button>
                 @endcan
             </div>
         </x-slot:actions>
     </x-header>
+
+    <!-- Mobile Actions -->
+    <div class="grid grid-cols-4 gap-2 mb-4 sm:hidden">
+        <div class="col-span-3">
+            <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+        </div>
+        <div class="col-span-1">
+            <x-select wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" class="w-full" />
+        </div>
+        <div class="col-span-1">
+            <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost w-full" tooltip="Filters" />
+        </div>
+        <div class="col-span-2">
+            <x-button icon="o-arrow-down-tray" @click="$wire.exportModal = true" class="btn-success text-white w-full" tooltip="Export Data">
+                <span class="inline">Export</span>
+            </x-button>
+        </div>
+        @can('wr.create')
+            <div class="col-span-1">
+                <x-button icon="o-plus" class="btn-primary w-full" link="{{ route('maintenance.cardty.create') }}">
+                    <span class="inline">Add</span>
+                </x-button>
+            </div>
+        @endcan
+    </div>
     @include('livewire.maintenance.cardty.partials.index-filters')
     <x-card>
-        <x-table striped :headers="[
-                ['key' => 'index',        'label' => '#'],
-                ['key' => 'Date',         'label' => 'Date'],
-                ['key' => 'LineName',     'label' => 'Line'],
-                ['key' => 'MachineName',  'label' => 'Machine'],
-                ['key' => 'Problem',      'label' => 'Problem'],
-                ['key' => 'Status',       'label' => 'Status', 'class' => 'text-center'],
-                ['key' => 'DownTime',     'label' => 'DownTime (m)', 'class' => 'text-center'],
-                ['key' => 'PIC',          'label' => 'PIC'],
-                ['key' => 'action',       'label' => 'Action', 'class' => 'text-center'],
-            ]" :rows="$records" with-pagination link="/maintenance/cardty/{id}">
+        <div class="overflow-x-auto w-full">
+            <x-table striped :headers="[
+                    ['key' => 'index',        'label' => '#'],
+                    ['key' => 'Date',         'label' => 'Date'],
+                    ['key' => 'LineName',     'label' => 'Line'],
+                    ['key' => 'MachineName',  'label' => 'Machine'],
+                    ['key' => 'Problem',      'label' => 'Problem'],
+                    ['key' => 'Status',       'label' => 'Status', 'class' => 'text-center'],
+                    ['key' => 'DownTime',     'label' => 'DownTime (m)', 'class' => 'text-center'],
+                    ['key' => 'PIC',          'label' => 'PIC'],
+                    ['key' => 'action',       'label' => 'Action', 'class' => 'text-center'],
+                ]" :rows="$records" with-pagination link="/maintenance/cardty/{id}">
             @scope('cell_Date', $r)
             {{ $r->Date ? $r->Date->format('Y-m-d') : '-' }}
             @endscope
@@ -247,6 +261,7 @@ new class extends Component {
             </div>
             @endscope
         </x-table>
+        </div>
     </x-card>
 
     <!-- Delete Confirmation Modal -->

@@ -10,8 +10,8 @@ use App\Livewire\Traits\WithAssetSelection;
 new class extends Component {
     use WithPagination, WithFileUploads, Toast, WithAssetSelection;
 
+    public int $perPage = 10;
     public string $search = '';
-    public string $statusFilter = '';
 
     // Modals
     public bool   $addModal             = false;
@@ -23,7 +23,6 @@ new class extends Component {
     public string $group_name           = '';
     // $LineName and $MachineName are provided by WithAssetSelection Trait
     public string $problem              = '';
-    public string $status               = 'Open';
     
     // File Uploads
     public $file_rsa                    = null;
@@ -38,23 +37,17 @@ new class extends Component {
     {
         $this->resetPage();
     }
-    
-    public function updatedStatusFilter(): void
-    {
-        $this->resetPage();
-    }
 
     public function with(OneHourOverService $service): array
     {
         return [
-            'records' => $service->getPaginated(15, $this->search, $this->statusFilter),
+            'records' => $service->getPaginated($this->perPage, $this->search),
         ];
     }
 
     public function openAdd(): void
     {
         $this->reset(['formId','date','group_name','LineName','MachineName','problem','file_rsa','file_rca']);
-        $this->status = 'Open';
         $this->date = date('Y-m-d');
         $this->asset_id = null;
         $this->addModal = true;
@@ -77,7 +70,6 @@ new class extends Component {
             'line'       => $this->LineName,
             'machine'    => $this->MachineName,
             'problem'    => $this->problem,
-            'status'     => $this->status,
         ], $this->file_rsa, $this->file_rca);
 
         $this->addModal = false;
@@ -98,7 +90,6 @@ new class extends Component {
         $this->LineName     = $record->line ?? '';
         $this->MachineName  = $record->machine ?? '';
         $this->problem      = $record->problem ?? '';
-        $this->status       = $record->status ?? 'Open';
         
         $this->updatedLineName($this->LineName); // Ensure machines are loaded
         
@@ -125,7 +116,6 @@ new class extends Component {
             'line'       => $this->LineName,
             'machine'    => $this->MachineName,
             'problem'    => $this->problem,
-            'status'     => $this->status,
         ], $this->file_rsa, $this->file_rca);
 
         $this->editModal = false;
@@ -143,62 +133,73 @@ new class extends Component {
 <div>
     <x-header title="One Hour Over" separator progress-indicator>
         <x-slot:actions>
-            <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                <!-- Status Filter -->
-                <div class="flex-none sm:w-40">
-                    <x-select 
-                        wire:model.live="statusFilter" 
-                        :options="[['id'=>'','name'=>'All Status'],['id'=>'Open','name'=>'Open'],['id'=>'Closed','name'=>'Closed']]" 
-                        option-value="id" option-label="name" 
-                    />
-                </div>
-
-                <!-- Search -->
-                <div class="flex-1 sm:w-60">
+            <!-- Desktop Actions -->
+            <div class="hidden sm:flex flex-row items-center gap-2">
+                <div class="w-60">
                     <x-input placeholder="Search problem, line, machine..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
                 </div>
-
-                <!-- Add -->
-                <div class="flex-none">
-                    <x-button icon="o-plus" class="btn-primary" wire:click="openAdd">
-                        <span class="hidden sm:inline">Add Record</span>
-                    </x-button>
+                <div class="w-20">
+                    <x-select wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" />
                 </div>
+                <x-button icon="o-plus" class="btn-primary" wire:click="openAdd">
+                    <span class="inline">Add Record</span>
+                </x-button>
             </div>
         </x-slot:actions>
     </x-header>
 
+    <!-- Mobile Actions -->
+    <div class="grid grid-cols-4 gap-2 mb-4 sm:hidden">
+        <!-- Search (3/4 on mobile) -->
+        <div class="col-span-3">
+            <x-input placeholder="Search problem, line, machine..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+        </div>
+        <!-- Rows per page (1/4 on mobile) -->
+        <div class="col-span-1">
+            <x-select wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" class="w-full" />
+        </div>
+        <!-- Add (Full width on mobile) -->
+        <div class="col-span-4 mt-2">
+            <x-button icon="o-plus" class="btn-primary w-full" wire:click="openAdd">
+                <span class="inline">Add Record</span>
+            </x-button>
+        </div>
+    </div>
+
     <x-card>
-        <x-table
-            :headers="[
-                ['key' => 'date',         'label' => 'Date'],
-                ['key' => 'group_name',   'label' => 'Group'],
-                ['key' => 'line',         'label' => 'Line'],
-                ['key' => 'machine',      'label' => 'Machine'],
-                ['key' => 'problem',      'label' => 'Problem'],
-                ['key' => 'status',       'label' => 'Status'],
-            ]"
-            :rows="$records"
-            with-pagination
-        >
+        <div class="overflow-x-auto w-full">
+            <x-table
+                :headers="[
+                    ['key' => 'date',         'label' => 'Date'],
+                    ['key' => 'group_name',   'label' => 'Group'],
+                    ['key' => 'line',         'label' => 'Line'],
+                    ['key' => 'machine',      'label' => 'Machine'],
+                    ['key' => 'problem',      'label' => 'Problem'],
+                    ['key' => 'files',        'label' => 'Files', 'class' => 'text-center'],
+                    ['key' => 'actions',      'label' => 'Action', 'class' => 'text-center w-24'],
+                ]"
+                :rows="$records"
+                with-pagination
+            >
             @scope('cell_date', $r)
                 {{ $r->date ? $r->date->format('Y-m-d') : '-' }}
             @endscope
 
-            @scope('cell_status', $r)
-                <x-badge label="{{ $r->status }}" 
-                    class="{{ 
-                        match(strtolower($r->status)) {
-                            'open' => 'badge-error',
-                            'closed' => 'badge-success',
-                            default => 'badge-ghost'
-                        }
-                    }}" 
-                />
+            @scope('cell_files', $r)
+            <div class="flex gap-1 justify-center">
+                @if($r->file_rsa)
+                    <x-button label="RSA" icon="o-document" link="{{ asset('storage/' . $r->file_rsa) }}" external
+                        class="btn-xs btn-outline btn-info" tooltip="Repair Step Analysis" />
+                @endif
+                @if($r->file_rca)
+                    <x-button label="RCA" icon="o-document" link="{{ asset('storage/' . $r->file_rca) }}" external
+                        class="btn-xs btn-outline btn-success" tooltip="Root Cause Analysis" />
+                @endif
+            </div>
             @endscope
 
-            @scope('actions', $r)
-                <div class="flex gap-1">
+            @scope('cell_actions', $r)
+                <div class="flex gap-1 justify-center">
                     <x-button icon="o-pencil-square" class="btn-ghost btn-xs" wire:click="openEdit({{ $r->id }})" />
                     <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
                         wire:click="deleteRecord({{ $r->id }})" 
@@ -206,6 +207,7 @@ new class extends Component {
                 </div>
             @endscope
         </x-table>
+        </div>
     </x-card>
 
     {{-- Add Modal --}}
