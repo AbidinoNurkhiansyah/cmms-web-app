@@ -39,7 +39,8 @@ Route::middleware('auth')->group(function () {
     Volt::route('/checksheet', 'checksheet.index')->name('checksheet.index');
 
     // Deep Cleaning / TPM
-    Volt::route('/tpm', 'tpm.index')->name('tpm.index');
+    Volt::route('/deep-cleaning', 'deep-cleaning.index')->name('deep-cleaning.index');
+    Volt::route('/deep-cleaning/{id}', 'deep-cleaning.show')->name('deep-cleaning.show');
 
     // Overhaul
     Volt::route('/overhaul', 'overhaul.index')->name('overhaul.index');

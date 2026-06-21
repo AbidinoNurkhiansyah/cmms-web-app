@@ -79,7 +79,7 @@
                 {{-- Deep Cleaning / TPM --}}
                 @can('pm.view')
                 <x-menu-sub title="Deep Cleaning" icon="o-clipboard-document-check">
-                    <x-menu-item title="Before After" icon="o-chart-bar" link="/tpm/list" />
+                    <x-menu-item title="Before After" icon="o-chart-bar" link="/deep-cleaning" />
                     <x-menu-item title="Schedule" icon="o-calendar-days" link="/tpm/schedule" />
                     <x-menu-item title="Check Sheet" icon="o-document-check" link="/tpm/checksheet" />
                 </x-menu-sub>
