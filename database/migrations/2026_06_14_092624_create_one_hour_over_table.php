@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('problem')->nullable();
             $table->string('file_rsa', 200)->nullable();
             $table->string('file_rca', 200)->nullable();
-            $table->string('status', 20)->default('Open')->index();
             $table->timestamps();
         });
     }

@@ -10,7 +10,7 @@ class OneHourOver extends Model
 
     protected $fillable = [
         'date', 'group_name', 'line', 'machine',
-        'problem', 'file_rsa', 'file_rca', 'status',
+        'problem', 'file_rsa', 'file_rca',
     ];
 
     protected $casts = [

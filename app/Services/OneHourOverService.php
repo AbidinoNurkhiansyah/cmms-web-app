@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 class OneHourOverService
 {
-    public function getPaginated(int $perPage = 15, string $search = '', string $status = '')
+    public function getPaginated(int $perPage = 15, string $search = '')
     {
         return OneHourOver::query()
             ->when($search, fn($q) => $q->where(function ($q) use ($search) {
@@ -15,7 +15,6 @@ class OneHourOverService
                   ->orWhere('machine', 'like', "%{$search}%")
                   ->orWhere('problem', 'like', "%{$search}%");
             }))
-            ->when($status, fn($q) => $q->where('status', $status))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->paginate($perPage);
@@ -29,7 +28,6 @@ class OneHourOverService
         if ($fileRca) {
             $data['file_rca'] = $fileRca->store('one_hour_over', 'public');
         }
-        $data['status'] = $data['status'] ?? 'Open';
         return OneHourOver::create($data);
     }
 
