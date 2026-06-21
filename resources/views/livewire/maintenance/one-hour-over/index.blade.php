@@ -124,12 +124,6 @@ new class extends Component {
         $this->success('One Hour Over Record Updated.');
     }
 
-    public function openDelete(int $id): void
-    {
-        $this->recordToDelete = $id;
-        $this->deleteModal = true;
-    }
-
     public function deleteRecord(OneHourOverService $service): void
     {
         if ($this->recordToDelete) {
@@ -213,7 +207,7 @@ new class extends Component {
             @scope('cell_actions', $r)
                 <div class="flex gap-1 justify-center">
                     <x-button icon="o-pencil-square" class="btn-ghost btn-xs" wire:click="openEdit({{ $r->id }})" />
-                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error" wire:click="openDelete({{ $r->id }})" />
+                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error" @click="$wire.recordToDelete = {{ $r->id }}; $wire.deleteModal = true" />
                 </div>
             @endscope
         </x-table>
