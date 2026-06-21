@@ -16,9 +16,11 @@ new class extends Component {
     // Modals
     public bool   $addModal             = false;
     public bool   $editModal            = false;
+    public bool   $deleteModal          = false;
 
     // Form Fields
     public ?int   $formId               = null;
+    public ?int   $recordToDelete       = null;
     public string $date                 = '';
     public string $group_name           = '';
     // $LineName and $MachineName are provided by WithAssetSelection Trait
@@ -122,10 +124,20 @@ new class extends Component {
         $this->success('One Hour Over Record Updated.');
     }
 
-    public function deleteRecord(int $id, OneHourOverService $service): void
+    public function openDelete(int $id): void
     {
-        $service->delete($id);
-        $this->success('Record deleted.');
+        $this->recordToDelete = $id;
+        $this->deleteModal = true;
+    }
+
+    public function deleteRecord(OneHourOverService $service): void
+    {
+        if ($this->recordToDelete) {
+            $service->delete($this->recordToDelete);
+            $this->success('Record deleted.');
+            $this->deleteModal = false;
+            $this->recordToDelete = null;
+        }
     }
 };
 ?>
@@ -201,9 +213,7 @@ new class extends Component {
             @scope('cell_actions', $r)
                 <div class="flex gap-1 justify-center">
                     <x-button icon="o-pencil-square" class="btn-ghost btn-xs" wire:click="openEdit({{ $r->id }})" />
-                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error" 
-                        wire:click="deleteRecord({{ $r->id }})" 
-                        wire:confirm="Delete this record? This cannot be undone." />
+                    <x-button icon="o-trash" class="btn-ghost btn-xs text-error" wire:click="openDelete({{ $r->id }})" />
                 </div>
             @endscope
         </x-table>
@@ -215,4 +225,7 @@ new class extends Component {
 
     {{-- Edit Modal --}}
     @include('livewire.maintenance.one-hour-over.partials.edit-modal')
+
+    {{-- Delete Modal --}}
+    @include('livewire.maintenance.one-hour-over.partials.delete-modal')
 </div>
