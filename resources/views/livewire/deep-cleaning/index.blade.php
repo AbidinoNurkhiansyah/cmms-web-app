@@ -6,9 +6,10 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 use App\Livewire\Traits\WithAssetSelection;
+use App\Livewire\Traits\WithPersonnel;
 
 new class extends Component {
-    use WithPagination, WithFileUploads, Toast, WithAssetSelection;
+    use WithPagination, WithFileUploads, Toast, WithAssetSelection, WithPersonnel;
 
     public int $perPage = 10;
     public string $search = '';
@@ -21,21 +22,15 @@ new class extends Component {
     public ?int $formId = null;
     public ?int $recordToDelete = null;
     public string $Date = '';
+    public string $description = '';
 
     // $LineName and $MachineName are provided by WithAssetSelection Trait
-    public array $pics = [''];
-    public string $status = 'Scheduled';
-    public string $description = '';
-    public string $itemcheck = '';
-    public string $action = '';
-    public string $sparepart_id = '';
-    public ?int $sparepart_qty = null;
-    public $before_photo = null;
-    public $after_photo = null;
+    // $pics is provided by WithPersonnel Trait
 
     public function mount(): void
     {
         $this->mountWithAssetSelection();
+        $this->mountWithPersonnel();
     }
 
     public function updatedSearch(): void
@@ -57,22 +52,10 @@ new class extends Component {
         ];
     }
 
-    public function addPic(): void
-    {
-        $this->pics[] = '';
-    }
-
-    public function removePic(int $index): void
-    {
-        unset($this->pics[$index]);
-        $this->pics = array_values($this->pics); // Re-index
-    }
-
     public function openAdd(): void
     {
-        $this->reset(['formId', 'Date', 'LineName', 'MachineName', 'status', 'description', 'itemcheck', 'action', 'sparepart_id', 'sparepart_qty', 'before_photo', 'after_photo']);
+        $this->reset(['formId', 'Date', 'LineName', 'MachineName', 'MachineNo', 'description']);
         $this->pics = [''];
-        $this->status = 'Scheduled';
         $this->Date = date('Y-m-d');
         $this->asset_id = null;
         $this->addModal = true;
@@ -84,9 +67,8 @@ new class extends Component {
             'Date' => 'required|date',
             'LineName' => 'required|string',
             'MachineName' => 'required|string',
+            'description' => 'required|string',
             'pics.*' => 'nullable|string',
-            'before_photo' => 'nullable|image|max:4096',
-            'after_photo' => 'nullable|image|max:4096',
         ]);
 
         // Filter out empty PICs
@@ -100,23 +82,13 @@ new class extends Component {
         $data = [
             'Date' => $this->Date,
             'LineName' => $this->LineName,
-            'MachineNo' => $this->MachineName, // Wait, machine no isn't fully supported via WithAssetSelection. Will map it roughly if needed.
+            'MachineNo' => $this->MachineNo,
             'MachineName' => $this->MachineName,
-            'pics' => array_values($filteredPics),
-            'status' => $this->status,
             'description' => $this->description,
-            'itemcheck' => $this->itemcheck,
-            'action' => $this->action,
-            'sparepart_id' => $this->sparepart_id,
-            'sparepart_qty' => $this->sparepart_qty,
+            'pics' => array_values($filteredPics),
         ];
 
-        if ($this->before_photo) {
-            $data['before_photo'] = $this->before_photo->store('deep_cleaning_photos', 'public');
-        }
-        if ($this->after_photo) {
-            $data['after_photo'] = $this->after_photo->store('deep_cleaning_photos', 'public');
-        }
+
 
         $service->create($data);
 
@@ -136,18 +108,10 @@ new class extends Component {
         $this->Date = $record->Date ? $record->Date->format('Y-m-d') : '';
         $this->LineName = $record->LineName ?? '';
         $this->MachineName = $record->MachineName ?? '';
-        $this->pics = is_array($record->pics) && count($record->pics) > 0 ? $record->pics : [''];
-        $this->status = $record->status ?? 'Scheduled';
+        $this->MachineNo = $record->MachineNo ?? '';
         $this->description = $record->description ?? '';
-        $this->itemcheck = $record->itemcheck ?? '';
-        $this->action = $record->action ?? '';
-        $this->sparepart_id = $record->sparepart_id ?? '';
-        $this->sparepart_qty = $record->sparepart_qty;
-
+        $this->pics = is_array($record->pics) && count($record->pics) > 0 ? $record->pics : [''];
         $this->updatedLineName($this->LineName); // Ensure machines are loaded
-
-        $this->before_photo = null;
-        $this->after_photo = null;
 
         $this->editModal = true;
     }
@@ -158,9 +122,8 @@ new class extends Component {
             'Date' => 'required|date',
             'LineName' => 'required|string',
             'MachineName' => 'required|string',
+            'description' => 'required|string',
             'pics.*' => 'nullable|string',
-            'before_photo' => 'nullable|image|max:4096',
-            'after_photo' => 'nullable|image|max:4096',
         ]);
 
         // Filter out empty PICs
@@ -174,23 +137,13 @@ new class extends Component {
         $data = [
             'Date' => $this->Date,
             'LineName' => $this->LineName,
-            'MachineNo' => $this->MachineName,
+            'MachineNo' => $this->MachineNo,
             'MachineName' => $this->MachineName,
-            'pics' => array_values($filteredPics),
-            'status' => $this->status,
             'description' => $this->description,
-            'itemcheck' => $this->itemcheck,
-            'action' => $this->action,
-            'sparepart_id' => $this->sparepart_id,
-            'sparepart_qty' => $this->sparepart_qty,
+            'pics' => array_values($filteredPics),
         ];
 
-        if ($this->before_photo) {
-            $data['before_photo'] = $this->before_photo->store('deep_cleaning_photos', 'public');
-        }
-        if ($this->after_photo) {
-            $data['after_photo'] = $this->after_photo->store('deep_cleaning_photos', 'public');
-        }
+
 
         $service->update($this->formId, $data);
 
@@ -205,6 +158,17 @@ new class extends Component {
             $this->success('Record deleted.');
             $this->deleteModal = false;
             $this->recordToDelete = null;
+        }
+    }
+
+    public function updatedMachineName($value)
+    {
+        $this->MachineNo = '';
+        if ($value && isset($this->machines)) {
+            $machine = $this->machines->firstWhere('machine_name', $value);
+            if ($machine) {
+                $this->MachineNo = $machine->asset_no ?? '';
+            }
         }
     }
 };
@@ -256,6 +220,7 @@ new class extends Component {
         ['key' => 'Date', 'label' => 'Date'],
         ['key' => 'LineName', 'label' => 'Line'],
         ['key' => 'MachineName', 'label' => 'Machine'],
+        ['key' => 'MachineNo', 'label' => 'Asset No'],
         ['key' => 'description', 'label' => 'Description'],
         ['key' => 'actions', 'label' => 'Action', 'class' => 'text-center w-24'],
     ]"
@@ -267,7 +232,16 @@ new class extends Component {
                 @endscope
 
                 @scope('cell_description', $r)
-                <span class="truncate block max-w-xs" title="{{ $r->description }}">{{ $r->description ?: '-' }}</span>
+                @if($r->description)
+                    <x-badge value="{{ $r->description }}" class="{{ match($r->description) {
+                        'TPM' => 'badge-primary',
+                        'Preventive' => 'badge-info',
+                        'Repair' => 'badge-warning',
+                        default => 'badge-ghost'
+                    } }} rounded-full badge-sm" />
+                @else
+                    -
+                @endif
                 @endscope
 
                 @scope('cell_actions', $r)
