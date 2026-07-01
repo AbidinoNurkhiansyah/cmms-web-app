@@ -22,7 +22,7 @@ new #[Layout('layouts.guest')] class extends Component {
         if (Auth::attempt([$field => $this->username, 'password' => $this->password])) {
             session()->regenerate();
             session()->flash('success_login', 'Berhasil masuk! Selamat datang, ' . Auth::user()->name . '.');
-            $this->redirect('/dashboard');
+            $this->redirect('/dashboard', navigate: true);
         } else {
             $this->error = 'Username or Password is incorrect!';
         }
