@@ -187,6 +187,9 @@ new class extends Component {
                     <x-select wire:model.live="perPage" :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]" option-value="id"
                         option-label="name" />
                 </div>
+                <x-button icon="o-calendar" class="btn-outline" link="{{ route('deep-cleaning.schedule') }}" wire:navigate>
+                    <span class="inline">Schedule</span>
+                </x-button>
                 <x-button icon="o-plus" class="btn-primary" wire:click="openAdd">
                     <span class="inline">Add Record</span>
                 </x-button>

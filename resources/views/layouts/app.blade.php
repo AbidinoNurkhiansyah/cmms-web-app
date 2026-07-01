@@ -8,6 +8,13 @@
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <style>
+        /* Menyembunyikan garis waktu (progress bar) pada komponen Toast MaryUI */
+        .toast progress { 
+            display: none !important; 
+        }
+    </style>
 </head>
 
 <body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200" x-data="{ sidebarCollapsed: {{ session('mary-sidebar-collapsed', 'false') }} }" @sidebar-toggled.window="sidebarCollapsed = $event.detail" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
@@ -79,8 +86,8 @@
                 {{-- Deep Cleaning / TPM --}}
                 @can('pm.view')
                 <x-menu-sub title="Deep Cleaning" icon="o-clipboard-document-check">
-                    <x-menu-item title="Before After" icon="o-chart-bar" link="/deep-cleaning" wire:navigate />
-                    <x-menu-item title="Schedule" icon="o-calendar-days" link="/tpm/schedule" wire:navigate />
+                    <x-menu-item title="Before After" icon="o-chart-bar" link="{{ route('deep-cleaning.index') }}" exact wire:navigate />
+                    <x-menu-item title="Schedule" icon="o-calendar-days" link="{{ route('deep-cleaning.schedule') }}" wire:navigate />
                     <x-menu-item title="Check Sheet" icon="o-document-check" link="/tpm/checksheet" wire:navigate />
                 </x-menu-sub>
                 @endcan
