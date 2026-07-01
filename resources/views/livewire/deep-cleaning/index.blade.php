@@ -41,7 +41,7 @@ new class extends Component {
     public function with(DeepCleaningService $service): array
     {
         $records = $service->getPaginated($this->perPage, $this->search, '');
-        
+
         $records->getCollection()->transform(function ($item, $key) use ($records) {
             $item->row_index = $records->firstItem() + $key;
             return $item;
@@ -184,9 +184,8 @@ new class extends Component {
                         icon="o-magnifying-glass" />
                 </div>
                 <div class="w-20">
-                    <x-select wire:model.live="perPage"
-                        :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]"
-                        option-value="id" option-label="name" />
+                    <x-select wire:model.live="perPage" :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]" option-value="id"
+                        option-label="name" />
                 </div>
                 <x-button icon="o-plus" class="btn-primary" wire:click="openAdd">
                     <span class="inline">Add Record</span>
@@ -202,9 +201,8 @@ new class extends Component {
                 icon="o-magnifying-glass" />
         </div>
         <div class="col-span-1">
-            <x-select wire:model.live="perPage"
-                :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]"
-                option-value="id" option-label="name" class="w-full" />
+            <x-select wire:model.live="perPage" :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]" option-value="id" option-label="name"
+                class="w-full" />
         </div>
         <div class="col-span-4 mt-2">
             <x-button icon="o-plus" class="btn-primary w-full" wire:click="openAdd">
@@ -223,8 +221,8 @@ new class extends Component {
         ['key' => 'MachineNo', 'label' => 'Asset No'],
         ['key' => 'description', 'label' => 'Description'],
         ['key' => 'actions', 'label' => 'Action', 'class' => 'text-center w-24'],
-    ]"
-                :rows="$records" with-pagination @row-click="Livewire.navigate('{{ route('deep-cleaning.index') }}/' + $event.detail.id)"
+    ]" :rows="$records" with-pagination
+                @row-click="Livewire.navigate('{{ route('deep-cleaning.index') }}/' + $event.detail.id)"
                 class="hover:cursor-pointer">
 
                 @scope('cell_Date', $r)
@@ -233,7 +231,7 @@ new class extends Component {
 
                 @scope('cell_description', $r)
                 @if($r->description)
-                    <x-badge value="{{ $r->description }}" class="{{ match($r->description) {
+                                <x-badge value="{{ $r->description }}" class="{{ match ($r->description) {
                         'TPM' => 'badge-primary',
                         'Preventive' => 'badge-info',
                         'Repair' => 'badge-warning',
