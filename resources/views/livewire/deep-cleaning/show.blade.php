@@ -6,9 +6,10 @@ use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 use Illuminate\Support\Facades\Storage;
+use App\Livewire\Traits\WithSpareparts;
 
 new class extends Component {
-    use WithFileUploads, Toast;
+    use WithFileUploads, Toast, WithSpareparts;
 
     public DeepCleaning $record;
     public string $selectedTab = 'findings-tab';
@@ -45,7 +46,7 @@ new class extends Component {
     public ?int $spToDelete = null;
 
     // Sparepart Form
-    public string $sp_id = '';
+    public $sp_id = '';
     public ?int $sp_qty = 1;
     public string $sp_itemcheck = '';
 
@@ -203,14 +204,22 @@ new class extends Component {
 
     public function saveSp()
     {
+        \Log::info("saveSp called", ['sp_id' => $this->sp_id, 'sp_qty' => $this->sp_qty, 'sp_itemcheck' => $this->sp_itemcheck]);
+        
+        $spIdValue = is_array($this->sp_id) ? ($this->sp_id[0] ?? '') : $this->sp_id;
+
         $this->validate([
-            'sp_id' => 'required|string|max:255',
             'sp_qty' => 'required|integer|min:1',
             'sp_itemcheck' => 'nullable|string|max:255',
         ]);
 
+        if (empty($spIdValue)) {
+            $this->addError('sp_id', 'The sparepart field is required.');
+            return;
+        }
+
         $data = [
-            'sparepart_id' => $this->sp_id,
+            'sparepart_id' => $spIdValue,
             'qty' => $this->sp_qty,
             'itemcheck' => $this->sp_itemcheck,
         ];
@@ -247,7 +256,7 @@ new class extends Component {
 ?>
 
 <div>
-    <x-header separator>
+    <x-header separator class="!mb-4">
         <x-slot:title>
             <div class="flex items-center gap-3">
                 <x-button icon="o-arrow-left" class="btn-circle btn-ghost btn-sm" link="{{ route('deep-cleaning.index') }}" wire:navigate />
@@ -256,95 +265,22 @@ new class extends Component {
         </x-slot:title>
     </x-header>
 
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid grid-cols-1 gap-4">
         <!-- General Info -->
         @include('livewire.deep-cleaning.partials.show-general-info')
 
         <x-tabs wire:model="selectedTab" 
-            label-div-class="w-full flex overflow-x-auto border-b border-base-content/10 mb-6"
+            label-div-class="w-full flex overflow-x-auto border-b border-base-content/10 mb-4"
             active-class="bg-neutral text-neutral-content"
             label-class="flex-1 text-center font-bold py-3 [&:not(.tab-active)]:hover:bg-base-300 transition-all cursor-pointer text-base-content/70">
             <!-- TAB 1: FINDINGS -->
             <x-tab name="findings-tab" label="Findings (Before & After)" icon="o-document-text">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold">Findings Checklist</h2>
-                    <x-button icon="o-plus" label="Add Finding" class="btn-primary btn-sm" wire:click="openAddItem" />
-                </div>
-
-                @if($record->items->isEmpty())
-                    <div class="text-center py-10 bg-base-200 rounded-xl border border-dashed">
-                        <x-icon name="o-inbox" class="w-12 h-12 text-base-content/30 mx-auto mb-2" />
-                        <p class="text-base-content/70">No findings added yet.</p>
-                        <x-button label="Add First Finding" class="btn-outline btn-sm mt-3" wire:click="openAddItem" />
-                    </div>
-                @else
-                    <x-card class="p-0 overflow-hidden shadow-sm border border-base-300" shadow="false">
-                        <div class="overflow-x-auto">
-                            <table class="table table-zebra w-full">
-                                <thead class="bg-base-200">
-                                    <tr>
-                                        <th>Item Check</th>
-                                        <th class="text-center">Status</th>
-                                        <th class="w-1/4">Problem / Finding</th>
-                                        <th class="w-1/4">Action Taken</th>
-                                        <th class="text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($record->items as $item)
-                                        @include('livewire.deep-cleaning.partials.show-finding-row')
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </x-card>
-                @endif
+                @include('livewire.deep-cleaning.partials.show-tab-findings')
             </x-tab>
 
             <!-- TAB 2: SPAREPARTS -->
             <x-tab name="spareparts-tab" label="Spareparts Used" icon="o-wrench">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold">Spareparts List</h2>
-                    <x-button icon="o-plus" label="Add Sparepart" class="btn-primary btn-sm" wire:click="openAddSp" />
-                </div>
-
-                @if($record->spareparts->isEmpty())
-                    <div class="text-center py-10 bg-base-200 rounded-xl border border-dashed">
-                        <x-icon name="o-wrench" class="w-12 h-12 text-base-content/30 mx-auto mb-2" />
-                        <p class="text-base-content/70">No spareparts used.</p>
-                        <x-button label="Add Sparepart" class="btn-outline btn-sm mt-3" wire:click="openAddSp" />
-                    </div>
-                @else
-                    <x-card class="p-0 overflow-hidden shadow-sm border border-base-300" shadow="false">
-                        <div class="overflow-x-auto">
-                            <table class="table table-zebra w-full">
-                                <thead class="bg-base-200">
-                                    <tr>
-                                        <th>Sparepart Name / ID</th>
-                                        <th>Qty</th>
-                                        <th>Used For (Item Check)</th>
-                                        <th class="text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($record->spareparts as $sp)
-                                        <tr>
-                                            <td class="font-semibold">{{ $sp->sparepart_id }}</td>
-                                            <td>
-                                                <div class="badge badge-neutral">{{ $sp->qty }}</div>
-                                            </td>
-                                            <td class="text-base-content/70">{{ $sp->itemcheck ?: '-' }}</td>
-                                            <td class="text-right whitespace-nowrap">
-                                                <x-button icon="o-pencil-square" class="btn-ghost btn-sm btn-circle text-info" wire:click="openEditSp({{ $sp->id }})" />
-                                                <x-button icon="o-trash" class="btn-ghost btn-sm btn-circle text-error" wire:click="confirmDeleteSp({{ $sp->id }})" />
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </x-card>
-                @endif
+                @include('livewire.deep-cleaning.partials.show-tab-spareparts')
             </x-tab>
         </x-tabs>
     </div>

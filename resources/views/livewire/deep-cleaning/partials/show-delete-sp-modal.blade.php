@@ -5,13 +5,14 @@
             <x-icon name="o-exclamation-triangle" class="w-12 h-12 text-error" />
         </div>
         <h2 class="text-xl font-bold mb-2">Delete Sparepart?</h2>
-        <p class="text-base-content/70">Are you sure you want to delete this sparepart record? This action cannot be undone.</p>
+        <p class="text-base-content/70">Are you sure you want to delete this sparepart record? This action cannot be
+            undone.</p>
     </div>
 
     <x-slot:actions>
         <div class="flex gap-2 w-full justify-center mt-2">
             <x-button label="Cancel" @click="$wire.deleteSpModal = false" class="btn-ghost" />
-            <x-button label="Delete" wire:click="deleteSp" class="btn-error" spinner="deleteSp" />
+            <x-button label="Delete" wire:click="deleteSp" class="btn-error text-white" spinner="deleteSp" />
         </div>
     </x-slot:actions>
 </x-modal>
