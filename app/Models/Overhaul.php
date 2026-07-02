@@ -9,15 +9,29 @@ class Overhaul extends Model
     protected $table = 'cmms_oh_web';
 
     protected $fillable = [
-        'date_request', 'date_plan', 'date_start', 'date_finish',
-        'LineName', 'MachineNo', 'MachineName', 'description',
-        'pic', 'status', 'result', 'photo_before', 'photo_after',
+        'date', 'start_time', 'end_time',
+        'LineName', 'MachineNo', 'MachineName', 'asset_no',
+        'PIC', 'pic1', 'pic2', 'pic3', 
+        'description', 'problem', 'status', 'repair_time', 'work_time',
+        'explanation', 'next_improvement', 'yokotenkai',
+        'photo_before_1', 'photo_after_1', 'photo_before_2', 'photo_after_2'
     ];
 
     protected $casts = [
-        'date_request' => 'date',
-        'date_plan'    => 'date',
-        'date_start'   => 'date',
-        'date_finish'  => 'date',
+        'date'         => 'date',
+        'start_time'   => 'datetime',
+        'end_time'     => 'datetime',
+        'repair_time'  => 'double',
+        'work_time'    => 'double',
     ];
+
+    public function steps()
+    {
+        return $this->hasMany(OverhaulStep::class, 'overhaul_id');
+    }
+
+    public function spareparts()
+    {
+        return $this->hasMany(OverhaulSparepart::class, 'overhaul_id');
+    }
 }
