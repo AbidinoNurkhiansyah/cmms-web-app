@@ -187,9 +187,7 @@ new class extends Component {
                     <x-select wire:model.live="perPage" :options="[['id' => 10, 'name' => '10'], ['id' => 25, 'name' => '25'], ['id' => 50, 'name' => '50'], ['id' => 100, 'name' => '100']]" option-value="id"
                         option-label="name" />
                 </div>
-                <x-button icon="o-calendar" class="btn-outline" link="{{ route('deep-cleaning.schedule') }}" wire:navigate>
-                    <span class="inline">Schedule</span>
-                </x-button>
+
                 <x-button icon="o-plus" class="btn-primary" wire:click="openAdd">
                     <span class="inline">Add Record</span>
                 </x-button>
@@ -257,11 +255,11 @@ new class extends Component {
     </x-card>
 
     {{-- Add Modal --}}
-    @include('livewire.deep-cleaning.partials.add-modal')
+    @include('livewire.deep-cleaning.record.partials.add-modal')
 
     {{-- Edit Modal --}}
-    @include('livewire.deep-cleaning.partials.edit-modal')
+    @include('livewire.deep-cleaning.record.partials.edit-modal')
 
     {{-- Delete Modal --}}
-    @include('livewire.deep-cleaning.partials.delete-modal')
+    @include('livewire.deep-cleaning.record.partials.delete-modal')
 </div>

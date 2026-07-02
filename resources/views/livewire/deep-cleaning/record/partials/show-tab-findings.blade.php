@@ -24,7 +24,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($record->items as $item)
-                                        @include('livewire.deep-cleaning.partials.show-finding-row')
+                                        @include('livewire.deep-cleaning.record.partials.show-finding-row')
                                     @endforeach
                                 </tbody>
                             </table>

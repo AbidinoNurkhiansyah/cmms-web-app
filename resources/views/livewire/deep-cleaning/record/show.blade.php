@@ -267,7 +267,7 @@ new class extends Component {
 
     <div class="grid grid-cols-1 gap-4">
         <!-- General Info -->
-        @include('livewire.deep-cleaning.partials.show-general-info')
+        @include('livewire.deep-cleaning.record.partials.show-general-info')
 
         <x-tabs wire:model="selectedTab" 
             label-div-class="w-full flex overflow-x-auto border-b border-base-content/10 mb-4"
@@ -275,28 +275,28 @@ new class extends Component {
             label-class="flex-1 text-center font-bold py-3 [&:not(.tab-active)]:hover:bg-base-300 transition-all cursor-pointer text-base-content/70">
             <!-- TAB 1: FINDINGS -->
             <x-tab name="findings-tab" label="Findings (Before & After)" icon="o-document-text">
-                @include('livewire.deep-cleaning.partials.show-tab-findings')
+                @include('livewire.deep-cleaning.record.partials.show-tab-findings')
             </x-tab>
 
             <!-- TAB 2: SPAREPARTS -->
             <x-tab name="spareparts-tab" label="Spareparts Used" icon="o-wrench">
-                @include('livewire.deep-cleaning.partials.show-tab-spareparts')
+                @include('livewire.deep-cleaning.record.partials.show-tab-spareparts')
             </x-tab>
         </x-tabs>
     </div>
 
     <!-- Add / Edit Item Modal -->
-    @include('livewire.deep-cleaning.partials.show-item-modal')
+    @include('livewire.deep-cleaning.record.partials.show-item-modal')
 
     <!-- View Item Modal -->
-    @include('livewire.deep-cleaning.partials.show-view-item-modal')
+    @include('livewire.deep-cleaning.record.partials.show-view-item-modal')
 
     <!-- Delete Modal -->
-    @include('livewire.deep-cleaning.partials.show-delete-item-modal')
+    @include('livewire.deep-cleaning.record.partials.show-delete-item-modal')
 
     <!-- Add / Edit Sparepart Modal -->
-    @include('livewire.deep-cleaning.partials.show-sp-modal')
+    @include('livewire.deep-cleaning.record.partials.show-sp-modal')
 
     <!-- Delete Sparepart Modal -->
-    @include('livewire.deep-cleaning.partials.show-delete-sp-modal')
+    @include('livewire.deep-cleaning.record.partials.show-delete-sp-modal')
 </div>
