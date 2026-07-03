@@ -23,7 +23,6 @@ trait WithOverhaulModals
     public string $pic2 = '';
     public string $pic3 = '';
     public string $problem = '';
-    public string $description = '';
     public $repair_time = null;
     public $work_time = null;
 
@@ -45,14 +44,14 @@ trait WithOverhaulModals
 
     // Relational Arrays
     public array $steps = [];
-    public array $spareparts = [];
+    public array $oh_spareparts = [];
 
     public function mountWithOverhaulModals()
     {
         $this->date = date('Y-m-d');
         // Initial empty row for UI
         $this->addStep();
-        $this->addSparepart();
+        $this->addOhSparepart();
         $this->mountWithAssetSelection();
     }
 
@@ -67,15 +66,15 @@ trait WithOverhaulModals
         $this->steps = array_values($this->steps);
     }
 
-    public function addSparepart()
+    public function addOhSparepart()
     {
-        $this->spareparts[] = ['type' => '', 'qty' => '', 'maker' => '', 'remarks' => ''];
+        $this->oh_spareparts[] = ['type' => '', 'qty' => '', 'maker' => '', 'remarks' => ''];
     }
 
-    public function removeSparepart($index)
+    public function removeOhSparepart($index)
     {
-        unset($this->spareparts[$index]);
-        $this->spareparts = array_values($this->spareparts);
+        unset($this->oh_spareparts[$index]);
+        $this->oh_spareparts = array_values($this->oh_spareparts);
     }
 
     public function calculateTime()
@@ -85,6 +84,18 @@ trait WithOverhaulModals
             $end = \Carbon\Carbon::parse($this->end_time);
             $diffInMinutes = $start->diffInMinutes($end);
             $this->repair_time = $diffInMinutes;
+            
+            $picCount = 0;
+            if (!empty($this->PIC)) $picCount++;
+            if (!empty($this->pic1)) $picCount++;
+            if (!empty($this->pic2)) $picCount++;
+            if (!empty($this->pic3)) $picCount++;
+            
+            $diffInHours = $diffInMinutes / 60;
+            $this->work_time = round($diffInHours * $picCount, 2);
+        } else {
+            $this->repair_time = null;
+            $this->work_time = null;
         }
     }
 
@@ -92,16 +103,16 @@ trait WithOverhaulModals
     {
         $this->reset([
             'formId', 'date', 'start_time', 'end_time', 'LineName', 'MachineNo', 'MachineName', 
-            'asset_id', 'PIC', 'pic1', 'pic2', 'pic3', 'problem', 'description', 'repair_time', 'work_time',
+            'asset_id', 'PIC', 'pic1', 'pic2', 'pic3', 'problem', 'repair_time', 'work_time',
             'explanation', 'next_improvement', 'yokotenkai',
             'photo_before_1', 'photo_after_1', 'photo_before_2', 'photo_after_2',
             'existing_photo_before_1', 'existing_photo_after_1', 'existing_photo_before_2', 'existing_photo_after_2'
         ]);
         $this->date = date('Y-m-d');
         $this->steps = [];
-        $this->spareparts = [];
+        $this->oh_spareparts = [];
         $this->addStep();
-        $this->addSparepart();
+        $this->addOhSparepart();
     }
 
     public function openAdd()
@@ -133,7 +144,6 @@ trait WithOverhaulModals
             'pic2' => $this->pic2,
             'pic3' => $this->pic3,
             'problem' => $this->problem,
-            'description' => $this->description,
             'repair_time' => $this->repair_time,
             'work_time' => $this->work_time,
             'explanation' => $this->explanation,
@@ -143,7 +153,7 @@ trait WithOverhaulModals
 
         // filter empty arrays
         $validSteps = array_filter($this->steps, fn($s) => !empty($s['step_repair']));
-        $validSpareparts = array_filter($this->spareparts, fn($s) => !empty($s['type']));
+        $validSpareparts = array_filter($this->oh_spareparts, fn($s) => !empty($s['type']));
 
         $relations = [
             'steps' => $validSteps,
@@ -188,7 +198,6 @@ trait WithOverhaulModals
         $this->pic2 = $record->pic2 ?? '';
         $this->pic3 = $record->pic3 ?? '';
         $this->problem = $record->problem ?? '';
-        $this->description = $record->description ?? '';
         $this->repair_time = $record->repair_time;
         $this->work_time = $record->work_time;
         $this->explanation = $record->explanation ?? '';
@@ -203,8 +212,8 @@ trait WithOverhaulModals
         $this->steps = $record->steps->map(fn($s) => ['step_repair' => $s->step_repair, 'minutes' => $s->minutes, 'obstacle' => $s->obstacle])->toArray();
         if (empty($this->steps)) $this->addStep();
 
-        $this->spareparts = $record->spareparts->map(fn($s) => ['type' => $s->type, 'qty' => $s->qty, 'maker' => $s->maker, 'remarks' => $s->remarks])->toArray();
-        if (empty($this->spareparts)) $this->addSparepart();
+        $this->oh_spareparts = $record->spareparts->map(fn($s) => ['type' => $s->type, 'qty' => $s->qty, 'maker' => $s->maker, 'remarks' => $s->remarks])->toArray();
+        if (empty($this->oh_spareparts)) $this->addOhSparepart();
 
         $this->editModal = true;
     }
@@ -232,7 +241,6 @@ trait WithOverhaulModals
             'pic2' => $this->pic2,
             'pic3' => $this->pic3,
             'problem' => $this->problem,
-            'description' => $this->description,
             'repair_time' => $this->repair_time,
             'work_time' => $this->work_time,
             'explanation' => $this->explanation,
@@ -242,7 +250,7 @@ trait WithOverhaulModals
 
         // filter empty arrays
         $validSteps = array_filter($this->steps, fn($s) => !empty($s['step_repair']));
-        $validSpareparts = array_filter($this->spareparts, fn($s) => !empty($s['type']));
+        $validSpareparts = array_filter($this->oh_spareparts, fn($s) => !empty($s['type']));
 
         $relations = [
             'steps' => $validSteps,

@@ -6,16 +6,18 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 use App\Livewire\Overhaul\Traits\WithOverhaulModals;
+use App\Livewire\Traits\WithSpareparts;
 use Livewire\Attributes\Computed;
 
 new class extends Component {
-    use WithPagination, WithFileUploads, Toast, WithOverhaulModals;
+    use WithPagination, WithFileUploads, Toast, WithOverhaulModals, WithSpareparts;
 
     public string $search = '';
 
     public function mount()
     {
         $this->mountWithOverhaulModals();
+        $this->mountWithSpareparts();
     }
 
     public function updatedSearch(): void
@@ -26,7 +28,7 @@ new class extends Component {
     #[Computed]
     public function records()
     {
-        return app(OverhaulService::class)->getPaginated(15, $this->search);
+        return app(OverhaulService::class)->getPaginated(10, $this->search);
     }
 };
 ?>
