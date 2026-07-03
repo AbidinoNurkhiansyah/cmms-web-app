@@ -12,7 +12,7 @@ class Overhaul extends Model
         'date', 'start_time', 'end_time',
         'LineName', 'MachineNo', 'MachineName', 'asset_no',
         'PIC', 'pic1', 'pic2', 'pic3', 
-        'description', 'problem', 'status', 'repair_time', 'work_time',
+        'problem', 'status', 'repair_time', 'work_time',
         'explanation', 'next_improvement', 'yokotenkai',
         'photo_before_1', 'photo_after_1', 'photo_before_2', 'photo_after_2'
     ];

@@ -13,7 +13,6 @@ class OverhaulService
             ->when($search, fn($q) => $q->where(function ($q) use ($search) {
                 $q->where('LineName', 'like', "%{$search}%")
                   ->orWhere('MachineName', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
                   ->orWhere('problem', 'like', "%{$search}%");
             }))
             ->orderByDesc('date')
