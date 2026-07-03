@@ -15,7 +15,7 @@ trait WithSpareparts
 
     public function mountWithSpareparts(): void
     {
-        $this->spareparts = SparePart::all()->unique('part_name')->values();
+        $this->spareparts = SparePart::select('id', 'part_name')->get()->unique('part_name')->values();
         if (empty($this->usedSpareparts)) {
             $this->usedSpareparts = [['spare_part_id' => '', 'qty' => 1]];
         }
@@ -24,9 +24,9 @@ trait WithSpareparts
     public function searchSparepart(string $value = '')
     {
         if (empty($value)) {
-            $this->spareparts = SparePart::all()->unique('part_name')->values();
+            $this->spareparts = SparePart::select('id', 'part_name')->get()->unique('part_name')->values();
         } else {
-            $this->spareparts = SparePart::where('part_name', 'like', "%{$value}%")->get()->unique('part_name')->values();
+            $this->spareparts = SparePart::select('id', 'part_name')->where('part_name', 'like', "%{$value}%")->get()->unique('part_name')->values();
         }
     }
 

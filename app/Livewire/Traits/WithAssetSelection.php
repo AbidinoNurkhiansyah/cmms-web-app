@@ -20,7 +20,8 @@ trait WithAssetSelection
         $this->lineNames = $lines->map(fn($line) => ['name' => $line])->toArray();
         
         if ($this->LineName) {
-            $this->machines = Asset::where(['line_name' => $this->LineName])->get();
+            $this->machines = Asset::select('id', 'asset_no', 'machine_name')
+                                ->where(['line_name' => $this->LineName])->get();
             $matchedAsset = $this->machines->first(fn($asset) => $asset->asset_no === $this->MachineNo);
             if ($matchedAsset) {
                 $this->asset_id = $matchedAsset->id;
@@ -46,7 +47,7 @@ trait WithAssetSelection
     public function searchMachine(string $value = '')
     {
         if ($this->LineName) {
-            $query = Asset::where(['line_name' => $this->LineName]);
+            $query = Asset::select('id', 'asset_no', 'machine_name')->where(['line_name' => $this->LineName]);
             if (!empty($value)) {
                 $query->where('machine_name', 'like', "%{$value}%");
             }
@@ -63,9 +64,31 @@ trait WithAssetSelection
         $this->MachineName = '';
         
         if ($value) {
-            $this->machines = Asset::where(['line_name' => $value])->get();
+            $this->machines = Asset::select('id', 'asset_no', 'machine_name')
+                                ->where(['line_name' => $value])->get();
         } else {
             $this->machines = collect();
+        }
+    }
+
+    public function updatedMachineNo($value)
+    {
+        if ($value) {
+            $asset = Asset::select('id', 'asset_no', 'machine_name')
+                ->where('asset_no', $value)
+                ->where('line_name', $this->LineName)
+                ->first();
+                
+            if ($asset) {
+                $this->asset_id = $asset->id;
+                $this->MachineName = $asset->machine_name ?? '';
+            } else {
+                $this->asset_id = null;
+                $this->MachineName = '';
+            }
+        } else {
+            $this->asset_id = null;
+            $this->MachineName = '';
         }
     }
 

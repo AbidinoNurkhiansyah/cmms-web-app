@@ -95,7 +95,8 @@
                 {{-- Over Houl --}}
                 @can('pm.view')
                 <x-menu-sub title="Over Houl" icon="o-cog-8-tooth">
-                    <x-menu-item title="Report" icon="o-document-text" link="/overhaul" wire:navigate />
+                    <x-menu-item title="Report" icon="o-document-text" link="/overhaul/report" wire:navigate />
+                    <x-menu-item title="History Machine" icon="o-clock" link="/overhaul/history-machine" wire:navigate />
                 </x-menu-sub>
                 @endcan
 
