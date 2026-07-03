@@ -34,7 +34,7 @@ new class extends Component {
     <x-header separator class="!mb-4">
         <x-slot:title>
             <div class="flex items-center gap-3">
-                <x-button icon="o-arrow-left" class="btn-circle btn-ghost btn-sm" link="{{ route('overhaul.index') }}" wire:navigate />
+                <x-button icon="o-arrow-left" class="btn-circle btn-ghost btn-sm" link="{{ route('overhaul.report.index') }}" wire:navigate />
                 <span>Overhaul Details [{{ $record->id }}]</span>
             </div>
         </x-slot:title>

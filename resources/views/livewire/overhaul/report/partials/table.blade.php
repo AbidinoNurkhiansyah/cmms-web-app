@@ -10,7 +10,7 @@
         ]"
         :rows="$this->records"
         with-pagination
-        @row-click="Livewire.navigate('{{ route('overhaul.index') }}/' + $event.detail.id)"
+        @row-click="Livewire.navigate('{{ route('overhaul.report.index') }}/' + $event.detail.id)"
         class="hover:cursor-pointer"
     >
         @scope('cell_id', $r)

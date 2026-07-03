@@ -34,7 +34,7 @@ new class extends Component {
 ?>
 
 <div>
-    @include('livewire.overhaul.partials.header')
-    @include('livewire.overhaul.partials.table')
-    @include('livewire.overhaul.partials.modal-form')
+    @include('livewire.overhaul.report.partials.header')
+    @include('livewire.overhaul.report.partials.table')
+    @include('livewire.overhaul.report.partials.modal-form')
 </div>
