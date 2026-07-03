@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     // Overhaul
     Volt::route('/overhaul', 'overhaul.index')->name('overhaul.index');
+    Volt::route('/overhaul/{id}', 'overhaul.show')->name('overhaul.show')->where('id', '[0-9]+');
 
     // Work Order
     Volt::route('/work-orders', 'work-order.index')->name('work-orders.index');
