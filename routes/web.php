@@ -44,9 +44,15 @@ Route::middleware('auth')->group(function () {
     Volt::route('/tpm/checksheet', 'deep-cleaning.checksheet.index')->name('tpm.checksheet.index');
     Volt::route('/deep-cleaning/{id}', 'deep-cleaning.record.show')->name('deep-cleaning.show')->where('id', '[0-9]+');
 
-    // Overhaul
-    Volt::route('/overhaul', 'overhaul.index')->name('overhaul.index');
-    Volt::route('/overhaul/{id}', 'overhaul.show')->name('overhaul.show')->where('id', '[0-9]+');
+    // Overhaul Report
+    Volt::route('/overhaul/report', 'overhaul.report.index')->name('overhaul.report.index');
+    Volt::route('/overhaul/report/{id}', 'overhaul.report.show')->name('overhaul.report.show')->where('id', '[0-9]+');
+
+    // Overhaul History Machine
+    Volt::route('/overhaul/history-machine', 'overhaul.history-machine.index')->name('overhaul.history-machine.index');
+    Volt::route('/overhaul/history-machine/qr-generator', 'overhaul.history-machine.qr-generator')->name('overhaul.history-machine.qr-generator');
+    Volt::route('/overhaul/history-machine/qr-print', 'overhaul.history-machine.qr-print')->name('overhaul.history-machine.qr-print');
+    Volt::route('/overhaul/history-machine/{id}', 'overhaul.history-machine.show')->name('overhaul.history-machine.show')->where('id', '[0-9]+');
 
     // Work Order
     Volt::route('/work-orders', 'work-order.index')->name('work-orders.index');
