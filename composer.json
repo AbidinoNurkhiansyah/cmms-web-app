@@ -19,6 +19,7 @@
         "maatwebsite/excel": "^3.1",
         "meilisearch/meilisearch-php": "^1.16",
         "robsontenorio/mary": "^2.8",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^5.4",
         "spatie/laravel-activitylog": "^4.12"
     },
