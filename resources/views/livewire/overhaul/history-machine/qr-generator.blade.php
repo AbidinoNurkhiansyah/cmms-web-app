@@ -3,10 +3,11 @@
 use Livewire\Volt\Component;
 use App\Models\Asset;
 use Livewire\Attributes\Layout;
+use Livewire\WithPagination;
 use Mary\Traits\Toast;
 
 new #[Layout('layouts.app')] class extends Component {
-    use Toast;
+    use Toast, WithPagination;
 
     public string $search = '';
     public array $selectedAssets = [];
@@ -14,19 +15,20 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function with(): array
     {
-        return [
-            'assets' => $this->getAssetsProperty(),
-        ];
-    }
-
-    public function getAssetsProperty()
-    {
         $query = Asset::query();
         if ($this->search) {
             $query->where('asset_no', 'like', '%' . $this->search . '%')
                   ->orWhere('machine_name', 'like', '%' . $this->search . '%');
         }
-        return $query->orderBy('asset_no')->get();
+
+        return [
+            'assets' => $query->orderBy('asset_no')->paginate(15),
+        ];
+    }
+    
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function toggleSelectAll()
@@ -35,7 +37,13 @@ new #[Layout('layouts.app')] class extends Component {
             $this->selectedAssets = [];
             $this->selectAll = false;
         } else {
-            $this->selectedAssets = $this->getAssetsProperty()->pluck('id')->map(fn($id) => (string)$id)->toArray();
+            // Get all IDs matching the current search without pagination
+            $query = Asset::query();
+            if ($this->search) {
+                $query->where('asset_no', 'like', '%' . $this->search . '%')
+                      ->orWhere('machine_name', 'like', '%' . $this->search . '%');
+            }
+            $this->selectedAssets = $query->pluck('id')->map(fn($id) => (string)$id)->toArray();
             $this->selectAll = true;
         }
     }
@@ -48,20 +56,19 @@ new #[Layout('layouts.app')] class extends Component {
         }
         
         $ids = implode(',', $this->selectedAssets);
-        // Open in new tab? We can't easily do target="_blank" from backend redirect.
-        // But we can redirect the current page, or provide a link.
-        // To open in a new tab from Livewire, we can dispatch a browser event.
         $url = route('overhaul.history-machine.qr-print', ['assets' => $ids]);
         $this->js("window.open('{$url}', '_blank')");
     }
 }; ?>
 
 <div class="space-y-6">
-    <x-header title="Generator QR Code Massal" separator>
-        <x-slot:actions>
-            <x-button label="Kembali" icon="o-arrow-left" link="{{ route('overhaul.history-machine.index') }}" class="btn-outline" wire:navigate />
-        </x-slot:actions>
-    </x-header>
+    <div class="flex items-center gap-4 pb-4 border-b border-base-200">
+        <x-button icon="o-arrow-left" link="{{ route('overhaul.history-machine.index') }}" class="btn-circle btn-ghost"
+            tooltip="Kembali" spinner wire:navigate />
+        <div>
+            <h1 class="text-2xl font-bold">Generator QR Code Massal</h1>
+        </div>
+    </div>
 
     <div class="text-sm text-base-content/70">
         <p>Pilih asset-asset di bawah ini untuk mencetak QR Code secara bersamaan. Link QR Code akan diarahkan ke riwayat mesin sesuai server aktif saat ini.</p>
@@ -121,4 +128,9 @@ new #[Layout('layouts.app')] class extends Component {
             </table>
         </div>
     </x-card>
+    
+    <!-- Pagination Links -->
+    <div class="mt-4">
+        {{ $assets->links() }}
+    </div>
 </div>
