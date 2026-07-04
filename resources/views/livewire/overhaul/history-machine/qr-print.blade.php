@@ -13,7 +13,7 @@ new #[Layout('layouts.guest')] class extends Component {
         if ($ids) {
             $idArray = explode(',', $ids);
             // Ambil data aset berdasarkan ID yang dipisahkan koma
-            $this->assets = Asset::whereIn('id', $idArray)->get();
+            $this->assets = Asset::findMany($idArray);
         }
     }
 }; ?>
@@ -39,17 +39,38 @@ new #[Layout('layouts.guest')] class extends Component {
         @php $isSingle = count($assets) === 1; @endphp
         
         @foreach($assets as $asset)
-            <div class="{{ $isSingle ? 'w-80 p-8 border-4' : 'w-48 p-4 border-2' }} flex flex-col items-center justify-center border-gray-300 rounded-xl text-center page-break-inside-avoid shrink-0">
-                <div class="font-bold {{ $isSingle ? 'text-xl mb-6' : 'text-sm mb-3' }} uppercase tracking-wider">{{ $asset->asset_no }}</div>
+            <div @class([
+                'flex flex-col items-center justify-center border-gray-300 rounded-xl text-center page-break-inside-avoid shrink-0',
+                'w-80 p-8 border-4' => $isSingle,
+                'w-48 p-4 border-2' => !$isSingle,
+            ])>
+                <div @class([
+                    'font-bold uppercase tracking-wider',
+                    'text-xl mb-6' => $isSingle,
+                    'text-sm mb-3' => !$isSingle,
+                ])>
+                    {{ $asset->asset_no }}
+                </div>
                 
                 <div class="bg-white p-2 flex justify-center w-full">
                     {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size($isSingle ? 250 : 120)->generate(url('/overhaul/history-machine?filter_asset_id=' . $asset->id)) !!}
                 </div>
                 
-                <div class="{{ $isSingle ? 'text-lg mt-6' : 'text-xs mt-3' }} truncate w-full font-semibold" title="{{ $asset->machine_name }}">
+                <div @class([
+                    'truncate w-full font-semibold',
+                    'text-lg mt-6' => $isSingle,
+                    'text-xs mt-3' => !$isSingle,
+                ]) title="{{ $asset->machine_name }}">
                     {{ $asset->machine_name }}
                 </div>
-                <div class="{{ $isSingle ? 'text-sm mt-2' : 'text-[10px] mt-1' }} text-gray-500">{{ $asset->line_name ?? '-' }}</div>
+                
+                <div @class([
+                    'text-gray-500',
+                    'text-sm mt-2' => $isSingle,
+                    'text-[10px] mt-1' => !$isSingle,
+                ])>
+                    {{ $asset->line_name ?? '-' }}
+                </div>
             </div>
         @endforeach
     </div>

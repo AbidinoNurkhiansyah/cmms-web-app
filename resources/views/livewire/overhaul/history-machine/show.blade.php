@@ -2,14 +2,24 @@
 
 use Livewire\Volt\Component;
 use App\Models\OverhaulHistoryMachine;
+use App\Models\SparePart;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Collection;
 
 new #[Layout('layouts.app')] class extends Component {
     public OverhaulHistoryMachine $detail;
+    public Collection $spareParts;
 
     public function mount($id)
     {
         $this->detail = OverhaulHistoryMachine::with(['asset', 'pic'])->findOrFail($id);
+        
+        // Bulk fetch spareparts to prevent N+1 query problem in the view
+        $this->spareParts = collect();
+        if (is_array($this->detail->part_change) && count($this->detail->part_change) > 0) {
+            $partIds = collect($this->detail->part_change)->pluck('spare_part_id')->filter()->unique();
+            $this->spareParts = SparePart::findMany($partIds)->keyBy('id');
+        }
     }
 }; ?>
 
@@ -68,8 +78,7 @@ new #[Layout('layouts.app')] class extends Component {
             <!-- Text Content -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div class="bg-base-200/30 p-3 rounded-lg border border-base-200">
-                    <div
-                        class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <div class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <x-icon name="o-exclamation-triangle" class="w-4 h-4 text-warning" />
                         Problem
                     </div>
@@ -77,8 +86,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
 
                 <div class="bg-base-200/30 p-3 rounded-lg border border-base-200">
-                    <div
-                        class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <div class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <x-icon name="o-magnifying-glass" class="w-4 h-4 text-error" />
                         Cause
                     </div>
@@ -86,8 +94,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
 
                 <div class="bg-base-200/30 p-3 rounded-lg border border-base-200">
-                    <div
-                        class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <div class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <x-icon name="o-check-circle" class="w-4 h-4 text-success" />
                         Corrective Action
                     </div>
@@ -98,7 +105,7 @@ new #[Layout('layouts.app')] class extends Component {
             <!-- Part Change Details -->
             <div class="mt-2 border-t border-base-300 pt-4">
                 <div class="text-xs text-base-content/70 font-bold uppercase tracking-wider mb-3">Part Change</div>
-                @if(is_array($detail->part_change) && count($detail->part_change) > 0)
+                @if($spareParts->isNotEmpty())
                     <div class="overflow-x-auto">
                         <table class="table table-sm table-zebra w-full">
                             <thead class="bg-base-200">
@@ -111,7 +118,7 @@ new #[Layout('layouts.app')] class extends Component {
                             <tbody>
                                 @foreach($detail->part_change as $idx => $sp)
                                     @php
-                                        $part = \App\Models\SparePart::find($sp['spare_part_id']);
+                                        $part = $spareParts->get($sp['spare_part_id']);
                                     @endphp
                                     <tr>
                                         <td class="text-center">{{ $idx + 1 }}</td>

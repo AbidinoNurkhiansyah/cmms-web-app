@@ -13,16 +13,20 @@ new #[Layout('layouts.app')] class extends Component {
     public array $selectedAssets = [];
     public bool $selectAll = false;
 
-    public function with(): array
+    public function getBaseQuery()
     {
         $query = Asset::query();
         if ($this->search) {
             $query->where('asset_no', 'like', '%' . $this->search . '%')
                   ->orWhere('machine_name', 'like', '%' . $this->search . '%');
         }
+        return $query;
+    }
 
+    public function with(): array
+    {
         return [
-            'assets' => $query->orderBy('asset_no')->paginate(15),
+            'assets' => $this->getBaseQuery()->orderBy('asset_no')->paginate(15),
         ];
     }
     
@@ -38,12 +42,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->selectAll = false;
         } else {
             // Get all IDs matching the current search without pagination
-            $query = Asset::query();
-            if ($this->search) {
-                $query->where('asset_no', 'like', '%' . $this->search . '%')
-                      ->orWhere('machine_name', 'like', '%' . $this->search . '%');
-            }
-            $this->selectedAssets = $query->pluck('id')->map(fn($id) => (string)$id)->toArray();
+            $this->selectedAssets = $this->getBaseQuery()->pluck('id')->map(fn($id) => (string)$id)->toArray();
             $this->selectAll = true;
         }
     }
