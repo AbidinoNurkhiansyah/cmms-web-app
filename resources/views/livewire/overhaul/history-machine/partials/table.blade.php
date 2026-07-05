@@ -8,7 +8,7 @@
                     <th class="text-xs uppercase bg-base-200 whitespace-nowrap">Machine Name</th>
                     <th class="text-xs uppercase bg-base-200 whitespace-nowrap">Tgl Berlaku</th>
                     <th class="text-xs uppercase bg-base-200">Problem</th>
-                    <th class="text-xs uppercase bg-base-200">Part Change</th>
+                    <th class="w-28 text-center text-xs uppercase bg-base-200 whitespace-nowrap">Part Change</th>
                     <th class="text-xs uppercase bg-base-200 whitespace-nowrap">PIC</th>
                     <th class="w-32 text-center text-xs uppercase bg-base-200">Action</th>
                 </tr>
@@ -26,11 +26,11 @@
                         <td class="text-sm max-w-[200px] truncate" title="{{ $record->problem }}">
                             {{ $record->problem ?? '-' }}
                         </td>
-                        <td class="text-sm">
+                        <td class="text-center align-middle">
                             @if(is_array($record->part_change) && count($record->part_change) > 0)
                                 <x-badge value="{{ count($record->part_change) }} parts" class="badge-neutral" />
                             @else
-                                -
+                                <span class="text-base-content/50">-</span>
                             @endif
                         </td>
                         <td class="whitespace-nowrap">{{ $record->pic->name ?? '-' }}</td>
