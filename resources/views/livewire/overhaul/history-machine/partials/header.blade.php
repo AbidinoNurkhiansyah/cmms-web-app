@@ -4,11 +4,6 @@
             <!-- Filter Tanggal -->
             <x-input type="date" wire:model.live="filter_tgl_berlaku" class="input-sm" />
 
-            <!-- Filter Asset -->
-            <x-choices wire:model.live="filter_asset_id" :options="$this->assets" option-label="machine_name"
-                option-value="id" placeholder="Pilih Mesin..." class="min-w-[250px]" icon="o-cpu-chip" single
-                searchable />
-
             <x-input wire:model.live.debounce.300ms="search" icon="o-magnifying-glass" placeholder="Cari data..."
                 class="input-sm w-48" clearable />
             <x-button icon="o-arrow-path" wire:click="resetFilters" class="btn-sm btn-ghost" tooltip="Reset Filter"

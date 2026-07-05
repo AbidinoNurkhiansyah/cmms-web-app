@@ -12,7 +12,6 @@ new class extends Component {
     use WithPagination, Toast, WithOverhaulHistoryMachineModals;
 
     public string $search = '';
-    public $filter_asset_id = null;
     public $filter_tgl_berlaku = null;
     
     public function mount()
@@ -37,11 +36,6 @@ new class extends Component {
         $this->resetPage();
     }
     
-    public function updatedFilterAssetId(): void
-    {
-        $this->resetPage();
-    }
-    
     public function updatedFilterTglBerlaku(): void
     {
         $this->resetPage();
@@ -49,7 +43,7 @@ new class extends Component {
 
     public function resetFilters(): void
     {
-        $this->reset(['search', 'filter_asset_id', 'filter_tgl_berlaku']);
+        $this->reset(['search', 'filter_tgl_berlaku']);
         $this->resetPage();
     }
 
@@ -57,7 +51,6 @@ new class extends Component {
     public function records()
     {
         return app(OverhaulHistoryMachineService::class)->getPaginated(10, $this->search, [
-            'asset_id' => $this->filter_asset_id,
             'tgl_berlaku' => $this->filter_tgl_berlaku,
         ]);
     }
