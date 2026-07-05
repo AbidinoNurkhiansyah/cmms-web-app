@@ -103,7 +103,7 @@
                 {{-- Spare Part --}}
                 @can('sparepart.view')
                 <x-menu-sub title="Spare Part" icon="o-cog-6-tooth">
-                    <x-menu-item title="Spare Part Check" icon="o-check-badge" link="/spare-parts" wire:navigate />
+                    <x-menu-item title="Spare Part Check" icon="o-check-badge" link="/spare-parts" exact wire:navigate />
                     <x-menu-item title="Stock Taking" icon="o-clipboard-document" link="/spare-parts/stock-taking" wire:navigate />
                     <x-menu-item title="Repair" icon="o-wrench" link="/spare-parts/repair" wire:navigate />
                 </x-menu-sub>
@@ -128,7 +128,7 @@
                         <x-menu-item title="Assets" icon="o-cpu-chip" link="/assets" wire:navigate />
                     @endcan
                     @can('sparepart.view')
-                        <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/spare-parts" wire:navigate />
+                        <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/spare-parts" exact wire:navigate />
                     @endcan
                     <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check" link="/checksheet/master" wire:navigate />
                 </x-menu-sub>

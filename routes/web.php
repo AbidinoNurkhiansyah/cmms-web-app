@@ -24,6 +24,10 @@ Route::middleware('auth')->group(function () {
     Volt::route('/assets', 'asset.asset-index')->name('assets.index');
     Volt::route('/assets/{id}', 'asset.asset-show')->name('assets.show');
     Volt::route('/spare-parts', 'spare-part.spare-part-index')->name('spare-parts.index');
+    Volt::route('/spare-parts/repair', 'spare-part.repair.index')->name('spare-parts.repair.index');
+    Volt::route('/spare-parts/repair/{id}', 'spare-part.repair.detail')->name('spare-parts.repair.show');
+    Volt::route('/spare-parts/stock-taking', 'spare-part.stock-taking.index')->name('spare-parts.stock-taking.index');
+    Volt::route('/spare-parts/stock-taking/{date}/{status?}', 'spare-part.stock-taking.detail')->name('spare-parts.stock-taking.detail');
 
     // User Management
     Volt::route('/users', 'users.index')->name('users.index');
