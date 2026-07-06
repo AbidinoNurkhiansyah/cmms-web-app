@@ -1,6 +1,6 @@
-<x-modal wire:model="isModalOpen" title="{{ $isEditMode ? 'Edit Repair Sparepart' : 'New Repair Sparepart' }}" class="backdrop-blur" box-class="w-11/12 max-w-3xl">
+<x-modal wire:model="isModalOpen" title="{{ $isEditMode ? 'Edit Repair Sparepart' : 'New Repair Sparepart' }}" class="backdrop-blur" box-class="w-11/12 max-w-3xl flex flex-col max-h-[90vh]">
     
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 overflow-y-auto pr-2">
         
         <!-- Row 1: Date, Part Name, Qty -->
         <div class="flex flex-col md:flex-row gap-3">
