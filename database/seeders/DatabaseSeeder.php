@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             SparePartSeeder::class,
             CartySeeder::class,
             OneHourOverSeeder::class,
+            SparePartStockTakingSeeder::class,
         ]);
     }
 }

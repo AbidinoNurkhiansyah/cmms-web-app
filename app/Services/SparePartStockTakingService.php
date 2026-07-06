@@ -82,4 +82,41 @@ class SparePartStockTakingService
     {
         return SparePartStockTaking::create($data);
     }
+
+    /**
+     * Get summary data for a specific date (Total Prices, Gap Over, Gap Minus)
+     */
+    public function getSummaryData(string $date)
+    {
+        $records = SparePartStockTaking::with('sparePart')
+            ->whereDate('date_stock', $date)
+            ->get();
+
+        $gapOver = 0;
+        $gapMinus = 0;
+        $totalPrices = 0;
+
+        foreach ($records as $record) {
+            $price = $record->sparePart->price_idr ?? 0;
+            $totalPrices += $record->last_stock * $price;
+
+            $diff = $record->check_stock - $record->last_stock;
+            if ($diff > 0) {
+                $gapOver += ($diff * $price);
+            } elseif ($diff < 0) {
+                $gapMinus += abs($diff * $price);
+            }
+        }
+
+        $gapTotal = $gapOver + $gapMinus;
+        $prosen = $totalPrices > 0 ? ($gapTotal / $totalPrices) * 100 : 0;
+
+        return [
+            'gap_over' => $gapOver,
+            'gap_minus' => $gapMinus,
+            'gap_total' => $gapTotal,
+            'total_prices' => $totalPrices,
+            'prosen' => $prosen,
+        ];
+    }
 }
