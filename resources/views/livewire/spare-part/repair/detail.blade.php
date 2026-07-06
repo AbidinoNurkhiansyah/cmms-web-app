@@ -136,31 +136,23 @@ new class extends Component {
             <div class="divider my-0"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex flex-col">
-                    <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2">Item
+                <div class="flex flex-col text-left w-full">
+                    <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2 text-left">Item
                         Repair</span>
-                    <div
-                        class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full">
-                        {{ $detailRecord->item_repair ?: '-' }}
-                    </div>
+                    <div class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full text-left">{{ $detailRecord->item_repair ?: '-' }}</div>
                 </div>
 
-                <div class="flex flex-col">
-                    <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2">Part
+                <div class="flex flex-col text-left w-full">
+                    <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2 text-left">Part
                         Usage</span>
-                    <div
-                        class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full">
-                        {{ $detailRecord->part_usage ?: '-' }}
-                    </div>
+                    <div class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full text-left">{{ $detailRecord->part_usage ?: '-' }}</div>
                 </div>
             </div>
 
-            <div class="flex flex-col">
-                <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2">Review &
+            <div class="flex flex-col text-left w-full">
+                <span class="block text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2 text-left">Review &
                     Countermeasures</span>
-                <div class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full">
-                    {{ $detailRecord->review ?: '-' }}
-                </div>
+                <div class="bg-base-200/50 p-3 rounded-lg border border-base-200 text-sm whitespace-pre-wrap h-full text-left">{{ $detailRecord->review ?: '-' }}</div>
             </div>
 
         </div>
