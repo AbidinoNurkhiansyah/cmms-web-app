@@ -17,14 +17,9 @@
                     @php
                         $totalTransactions = $record->ok_count + $record->err_count;
                         $errPercent = $totalTransactions > 0 ? round(($record->err_count / $totalTransactions) * 100, 2) : 0;
-                        
-                        // Calculating Not Count: In legacy, it's total parts - ok - err.
-                        // Assuming total parts in master data vs total stock checked.
-                        // To keep it simple based on legacy UI output, totalNg = totalStock - ok - ng
-                        // where 'ng' is err_count. But we'll just display it cleanly.
                         $totalStock = $record->total_stock;
                         $notCount = $totalStock - $record->ok_count - $record->err_count;
-                        
+
                         $dateStr = \Carbon\Carbon::parse($record->date)->format('Y-m-d');
                     @endphp
                     <tr wire:key="stc-{{ $dateStr }}" class="hover:bg-base-200/50 transition-colors">
@@ -48,19 +43,16 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex items-center justify-center gap-1">
-                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'ok']) }}" 
-                                   class="btn btn-outline btn-success btn-xs font-medium"
-                                   wire:navigate>
+                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'all']) }}"
+                                    class="btn btn-outline btn-success btn-xs font-medium" wire:navigate>
                                     Check
                                 </a>
-                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'err']) }}" 
-                                   class="btn btn-outline btn-error btn-xs font-medium"
-                                   wire:navigate>
+                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'err']) }}"
+                                    class="btn btn-outline btn-error hover:text-white btn-xs font-medium" wire:navigate>
                                     Error
                                 </a>
-                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'not_found']) }}" 
-                                   class="btn btn-outline btn-secondary btn-xs font-medium"
-                                   wire:navigate>
+                                <a href="{{ route('spare-parts.stock-taking.detail', ['date' => $dateStr, 'status' => 'not_found']) }}"
+                                    class="btn btn-outline btn-secondary btn-xs font-medium" wire:navigate>
                                     Not Found
                                 </a>
                             </div>
@@ -79,8 +71,8 @@
     </div>
 
     @if($this->records->hasPages())
-    <div class="card-footer border-t border-base-200 p-4">
-        {{ $this->records->links() }}
-    </div>
+        <div class="card-footer border-t border-base-200 p-4">
+            {{ $this->records->links() }}
+        </div>
     @endif
 </div>
