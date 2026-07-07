@@ -128,7 +128,7 @@
                         <x-menu-item title="Assets" icon="o-cpu-chip" link="/assets" wire:navigate />
                     @endcan
                     @can('sparepart.view')
-                        <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/spare-parts" exact wire:navigate />
+                        <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/master/spare-parts" exact wire:navigate />
                     @endcan
                     <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check" link="/checksheet/master" wire:navigate />
                 </x-menu-sub>
