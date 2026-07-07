@@ -39,6 +39,9 @@ class DatabaseSeeder extends Seeder
             CartySeeder::class,
             OneHourOverSeeder::class,
             SparePartStockTakingSeeder::class,
+            DeepCleaningSeeder::class,
+            TpmChecksheetSeeder::class,
+            DeepCleaningScheduleSeeder::class,
         ]);
     }
 }
