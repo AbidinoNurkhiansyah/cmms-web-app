@@ -50,21 +50,33 @@ class DeepCleaningSeeder extends Seeder
             $asset = $assets->random();
             $status = $faker->randomElement($statuses);
 
-            DeepCleaning::create([
+            $deepCleaning = DeepCleaning::create([
                 'Date'          => Carbon::today()->subDays(rand(0, 30)),
                 'LineName'      => $asset->line_name,
                 'MachineNo'     => $asset->asset_no,
                 'MachineName'   => $asset->machine_name,
                 'pics'          => $faker->randomElement($dummyPics),
-                'status'        => $status,
                 'description'   => $faker->randomElement(['TPM', 'Preventive', 'Repair']),
-                'itemcheck'     => $faker->randomElement($itemChecks),
+            ]);
+
+            $itemcheck = $faker->randomElement($itemChecks);
+
+            $deepCleaning->items()->create([
+                'itemcheck'     => $itemcheck,
+                'description'   => $faker->sentence(),
                 'action'        => $status === 'Done' ? 'Selesai dilakukan deep cleaning menyeluruh.' : 'Tindakan lanjutan sedang dipersiapkan.',
-                'sparepart_id'  => $faker->boolean(30) ? 'SP-00' . rand(1, 9) : null,
-                'sparepart_qty' => $faker->boolean(30) ? rand(1, 5) : null,
+                'status'        => $status,
                 'before_photo'  => null,
                 'after_photo'   => null,
             ]);
+
+            if ($faker->boolean(30)) {
+                $deepCleaning->spareparts()->create([
+                    'sparepart_id'  => 'SP-00' . rand(1, 9),
+                    'qty' => rand(1, 5),
+                    'itemcheck'     => $itemcheck,
+                ]);
+            }
         }
 
         $this->command->info('20 data dummy Deep Cleaning berhasil di-generate!');
