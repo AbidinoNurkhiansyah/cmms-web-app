@@ -1,0 +1,88 @@
+<?php
+
+use App\Services\SparePartService;
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
+
+new #[Layout('layouts.guest')] class extends Component {
+    public $part;
+
+    public function mount(int $id, SparePartService $sparePartService)
+    {
+        $this->part = $sparePartService->getSparePartById($id);
+        if (!$this->part) {
+            abort(404);
+        }
+    }
+};
+?>
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div class="mb-4 text-center">
+        <h1 class="text-2xl font-bold">Label Preview</h1>
+        <p class="text-sm text-gray-500">Please review before printing.</p>
+    </div>
+
+    <!-- Container Print (70mm x 30mm) -->
+    <div id="label" class="bg-white" style="width: 70mm; height: 30mm; padding: 2mm; font-size: 8pt;">
+        <div class="flex border border-black h-full">
+            <!-- Kiri (QR Code + ID) -->
+            <div class="w-1/3 border-r border-black flex flex-col items-center justify-between p-1">
+                <div id="qrcode" class="mb-1 w-full flex justify-center"></div>
+                <div class="border-t border-black pt-1 w-full text-center text-[7pt] font-bold truncate" title="{{ $part->part_number }}">
+                    {{ $part->part_number }}
+                </div>
+            </div>
+
+            <!-- Kanan (Part Name, Rack, Maker) -->
+            <div class="w-2/3 flex flex-col justify-between p-1">
+                <div class="text-[8pt] font-bold leading-tight line-clamp-3">
+                    {{ $part->part_name }}
+                </div>
+                <div class="border-t border-black pt-1 flex justify-between font-semibold mt-auto">
+                    <span>{{ $part->no_rack ?: '-' }}</span>
+                    <span class="truncate ml-1 max-w-[30mm]">{{ $part->maker ?: '-' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 flex gap-4">
+        <x-button label="Close Tab" class="btn-ghost" onclick="window.close()" />
+        <x-button label="Download PDF" class="btn-primary" icon="o-document-arrow-down" onclick="generatePDF()" />
+    </div>
+
+    <!-- Scripts for QR Code and PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Setup QR Code
+            new QRCode(document.getElementById("qrcode"), {
+                text: "{{ $part->part_number }}",
+                width: 60,
+                height: 60,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const canvas = await html2canvas(document.getElementById("label"), {
+                scale: 3 // High resolution
+            });
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: [70, 30]
+            });
+
+            pdf.addImage(imgData, "PNG", 0, 0, 70, 30);
+            pdf.autoPrint();
+            window.open(pdf.output('bloburl'), '_blank');
+        }
+    </script>
+</div>
