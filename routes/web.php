@@ -69,8 +69,9 @@ Route::middleware('auth')->group(function () {
     // One Hour Over
     Volt::route('/maintenance/one-hour-over', 'maintenance.one-hour-over.index')->name('maintenance.one-hour-over.index');
 
-    // Administration (KYT / Safety)
+    // Administration (KYT / Safety / Attendance)
     Volt::route('/administration/kyt', 'administration.kyt-index')->name('administration.kyt');
+    Volt::route('/administration/attendance', 'administration.attendance.index')->name('administration.attendance');
 
     // Problem Analysis
     Volt::route('/problem-analysis', 'problem-analysis.index')->name('problem-analysis.index');

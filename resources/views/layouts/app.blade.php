@@ -111,7 +111,7 @@
 
                 {{-- Administration --}}
                 <x-menu-sub title="Administration" icon="o-user-group">
-                    <x-menu-item title="Attendance" icon="o-user" link="/admin/attendance" wire:navigate />
+                    <x-menu-item title="Attendance" icon="o-user" link="/administration/attendance" wire:navigate />
                     <x-menu-item title="Over Time" icon="o-clock" link="/admin/overtime" wire:navigate />
                     <x-menu-item title="MyInfo" icon="o-identification" link="/admin/my-info" wire:navigate />
                     <x-menu-item title="SS" icon="o-light-bulb" link="/admin/ss" wire:navigate />
