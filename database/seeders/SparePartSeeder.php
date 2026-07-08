@@ -25,20 +25,27 @@ class SparePartSeeder extends Seeder
             ['part_name' => 'PNEUMATIC CYLINDER', 'part_number' => 'PNM-CYL-50', 'last_stock' => 5, 'maker' => 'SMC', 'price_idr' => 1200000, 'no_rack' => 'RCK-F-01', 'machine' => 'ASSEMBLY LINE'],
             ['part_name' => 'LUBRICANT OIL 10W40', 'part_number' => 'OIL-10W40', 'last_stock' => 100, 'maker' => 'SHELL', 'price_idr' => 65000, 'no_rack' => 'RCK-G-01', 'machine' => 'GENERAL'],
             ['part_name' => 'LIMIT SWITCH', 'part_number' => 'LMT-SW-01', 'last_stock' => 25, 'maker' => 'OMRON', 'price_idr' => 150000, 'no_rack' => 'RCK-H-01', 'machine' => 'PACKAGING MACHINE'],
+            ['part_name' => 'FUSE 10A', 'part_number' => 'FUS-10A-00', 'last_stock' => 500, 'maker' => 'BUSSMANN', 'price_idr' => 5000, 'no_rack' => 'RCK-I-01', 'machine' => 'MAIN PANEL'],
+            ['part_name' => 'RELAY MY4N', 'part_number' => 'RLY-MY4N', 'last_stock' => 50, 'maker' => 'OMRON', 'price_idr' => 75000, 'no_rack' => 'RCK-J-01', 'machine' => 'CONTROL PANEL'],
+            ['part_name' => 'MOTOR 3PH 1HP', 'part_number' => 'MTR-3PH-1HP', 'last_stock' => 2, 'maker' => 'TECO', 'price_idr' => 1500000, 'no_rack' => 'RCK-K-01', 'machine' => 'CONVEYOR MAIN'],
+            ['part_name' => 'FILTER ELEMENT', 'part_number' => 'FLT-ELM-01', 'last_stock' => 40, 'maker' => 'SMC', 'price_idr' => 250000, 'no_rack' => 'RCK-L-01', 'machine' => 'COMPRESSOR'],
+            ['part_name' => 'TIMING BELT', 'part_number' => 'TMB-01', 'last_stock' => 10, 'maker' => 'MITSUBOSHI', 'price_idr' => 350000, 'no_rack' => 'RCK-M-01', 'machine' => 'FILLING MACHINE'],
         ];
 
         foreach ($spareparts as $item) {
-            SparePart::create([
-                'group' => 'MECHANICAL', // default
-                'part_number' => $item['part_number'],
-                'part_name' => $item['part_name'],
-                'last_stock' => $item['last_stock'],
-                'maker' => $item['maker'],
-                'status' => 'ACTIVE',
-                'price_idr' => $item['price_idr'],
-                'no_rack' => $item['no_rack'],
-                'machine' => $item['machine'],
-            ]);
+            SparePart::updateOrCreate(
+                ['part_number' => $item['part_number']],
+                [
+                    'group' => 'MECHANICAL', // default
+                    'part_name' => $item['part_name'],
+                    'last_stock' => $item['last_stock'],
+                    'maker' => $item['maker'],
+                    'status' => 'ACTIVE',
+                    'price_idr' => $item['price_idr'],
+                    'no_rack' => $item['no_rack'],
+                    'machine' => $item['machine'],
+                ]
+            );
         }
     }
 }
