@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
             DeepCleaningSeeder::class,
             TpmChecksheetSeeder::class,
             DeepCleaningScheduleSeeder::class,
+            SparePartRepairSeeder::class,
         ]);
     }
 }
