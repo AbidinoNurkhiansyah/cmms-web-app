@@ -33,4 +33,9 @@ class SparePart extends Model
     {
         return $this->belongsToMany(Carty::class)->withPivot('qty')->withTimestamps();
     }
+
+    public function machineSpareParts()
+    {
+        return $this->hasMany(MachineSparePart::class);
+    }
 }
