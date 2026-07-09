@@ -39,11 +39,36 @@
         <!-- Bulk Action -->
         <div class="w-full md:w-auto">
             @if($this->selectedTeam)
+                @php
+                    $hasEmptyStatus = $this->currentTeamData->contains(fn($record) => empty(trim($record->status)));
+                @endphp
+                
                 <x-button
                     label="{{ $this->selectedTeam === 'all' ? 'Hadirkan Semua' : 'Hadirkan Semua (' . $this->selectedTeam . ')' }}"
-                    wire:click="markAllPresent('{{ $this->selectedTeam }}')" icon="o-check-circle"
-                    class="btn-success btn-sm text-white w-full md:w-auto" tooltip="Tandai 'P' untuk status kosong"
-                    onclick="return confirm('Yakin ingin menandai hadir (P) untuk semua status yang kosong?');" />
+                    @click="{{ $hasEmptyStatus ? 'confirm_mark_all.showModal()' : '' }}" icon="o-check-circle"
+                    class="btn-success btn-sm text-white w-full md:w-auto" 
+                    tooltip="{{ $hasEmptyStatus ? 'Tandai \'P\' untuk status kosong' : 'Semua karyawan sudah memiliki status' }}"
+                    :disabled="!$hasEmptyStatus" />
+
+                @if($hasEmptyStatus)
+                <!-- Modal Konfirmasi -->
+                <x-modal id="confirm_mark_all" title="Konfirmasi Bulk Action">
+                    <div class="py-4 text-base-content/80">
+                        Apakah Anda yakin ingin menandai hadir <b>(P)</b> untuk semua status karyawan yang masih kosong
+                        @if($this->selectedTeam === 'all')
+                            di <b>Semua Section</b>?
+                        @else
+                            di section <b>{{ $this->selectedTeam }}</b>?
+                        @endif
+                    </div>
+                    <x-slot:actions>
+                        <x-button label="Batal" @click="confirm_mark_all.close()" class="btn-ghost" />
+                        <x-button label="Ya, Hadirkan Semua"
+                            wire:click="markAllPresent('{{ $this->selectedTeam }}'); confirm_mark_all.close()"
+                            icon="o-check-circle" class="btn-success text-white" />
+                    </x-slot:actions>
+                </x-modal>
+                @endif
             @endif
         </div>
     </div>
@@ -68,7 +93,8 @@
                     <tr class="{{ $rowClass }} transition-colors">
                         <td class="text-base-content/50 w-12">{{ $index + 1 }}</td>
                         <td class="font-medium">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors group"
+                                wire:click="showUserDetail({{ $record->user_id }}, '{{ addslashes($record->user->name) }}')">
                                 {{ $record->user->name }}
                             </div>
                         </td>
