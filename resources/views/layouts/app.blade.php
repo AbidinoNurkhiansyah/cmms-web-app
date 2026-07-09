@@ -116,7 +116,7 @@
                     <x-menu-item title="My Info" icon="o-identification" link="/administration/my-info" wire:navigate />
                     <x-menu-item title="SS" icon="o-light-bulb" link="/administration/ss" wire:navigate />
                     <x-menu-item title="KYT" icon="o-shield-exclamation" link="/administration/kyt" wire:navigate />
-                    <x-menu-item title="Rolling Break" icon="o-arrow-path" link="/admin/rolling-break" wire:navigate />
+                    <x-menu-item title="Rolling Break" icon="o-arrow-path" link="/administration/rolling-break" wire:navigate />
                 </x-menu-sub>
 
                 {{-- Master Data --}}

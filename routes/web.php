@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('/administration/my-info', 'administration.info.index')->name('administration.my-info');
     Volt::route('/administration/ss', 'administration.ss.index')->name('administration.ss');
     Volt::route('/administration/ss/monthly', 'administration.ss.monthly')->name('administration.ss.monthly');
+    Volt::route('/administration/rolling-break', 'administration.rolling-break.index')->name('administration.rolling-break');
 
     // Problem Analysis
     Volt::route('/problem-analysis', 'problem-analysis.index')->name('problem-analysis.index');
