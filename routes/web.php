@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('/maintenance/one-hour-over', 'maintenance.one-hour-over.index')->name('maintenance.one-hour-over.index');
 
     // Administration (KYT / Safety / Attendance / Suggestion System)
-    Volt::route('/administration/kyt', 'administration.kyt-index')->name('administration.kyt');
+    Volt::route('/administration/kyt', 'administration.kyt.index')->name('administration.kyt');
     Volt::route('/administration/attendance', 'administration.attendance.index')->name('administration.attendance');
     Volt::route('/administration/overtime', 'administration.overtime.index')->name('administration.overtime');
     Volt::route('/administration/overtime/manage', 'administration.overtime.manage')->name('administration.overtime.manage');
