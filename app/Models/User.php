@@ -31,6 +31,10 @@ class User extends Authenticatable
         'status',
         'photo',
         'role',
+        'target_new',
+        'target_last',
+        'target_month_new',
+        'target_month_last',
     ];
 
     /**
@@ -79,5 +83,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function overtimes()
+    {
+        return $this->hasMany(Overtime::class);
     }
 }
