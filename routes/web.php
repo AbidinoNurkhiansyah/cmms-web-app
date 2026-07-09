@@ -72,6 +72,8 @@ Route::middleware('auth')->group(function () {
     // Administration (KYT / Safety / Attendance)
     Volt::route('/administration/kyt', 'administration.kyt-index')->name('administration.kyt');
     Volt::route('/administration/attendance', 'administration.attendance.index')->name('administration.attendance');
+    Volt::route('/administration/overtime', 'administration.overtime.index')->name('administration.overtime');
+    Volt::route('/administration/overtime/manage', 'administration.overtime.manage')->name('administration.overtime.manage');
 
     // Problem Analysis
     Volt::route('/problem-analysis', 'problem-analysis.index')->name('problem-analysis.index');
