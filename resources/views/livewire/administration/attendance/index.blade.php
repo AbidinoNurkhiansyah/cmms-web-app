@@ -12,10 +12,21 @@ new class extends Component {
     public $date;
     public $selectedTeam = 'all';
     public $search = '';
+
+    // User Detail State
+    public bool $showingUserDetail = false;
+    public ?int $selectedUserId = null;
+    public string $selectedUserName = '';
     
     public function mount() {
         // Default to today if not provided via query string
         $this->date = request()->query('date', Carbon::today()->format('Y-m-d'));
+    }
+    
+    public function showUserDetail($userId, $userName) {
+        $this->selectedUserId = $userId;
+        $this->selectedUserName = $userName;
+        $this->showingUserDetail = true;
     }
     
     public function setDate($date) {
@@ -87,4 +98,17 @@ new class extends Component {
 <div>
     @include('livewire.administration.attendance.partials.header')
     @include('livewire.administration.attendance.partials.table')
+
+    <!-- Drawer for User Detail -->
+    <x-drawer wire:model="showingUserDetail" title="Rekap Absen: {{ $selectedUserName }}" right class="w-11/12 lg:w-1/3">
+        @if($showingUserDetail)
+            <div class="mt-4">
+                <livewire:administration.attendance.user-detail :user-id="$selectedUserId" :key="$selectedUserId" />
+            </div>
+            
+            <x-slot:actions>
+                <x-button label="Tutup" @click="$wire.showingUserDetail = false" class="btn-primary" />
+            </x-slot:actions>
+        @endif
+    </x-drawer>
 </div>

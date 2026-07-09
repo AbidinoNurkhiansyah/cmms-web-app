@@ -136,4 +136,20 @@ class AttendanceService
             })
             ->update(['status' => $status]);
     }
+
+    /**
+     * Get attendance history for a specific user
+     */
+    public function getUserAttendanceHistory($userId, $month = null, $year = null, $perPage = 15)
+    {
+        $query = Attendance::where('user_id', $userId);
+        
+        if ($month && $year) {
+            $dateStart = Carbon::createFromDate($year, $month, 1)->startOfMonth()->format('Y-m-d');
+            $dateEnd = Carbon::createFromDate($year, $month, 1)->endOfMonth()->format('Y-m-d');
+            $query->whereBetween('date', [$dateStart, $dateEnd]);
+        }
+
+        return $query->orderBy('date', 'desc')->paginate($perPage);
+    }
 }
