@@ -14,7 +14,7 @@ class AssetRepository implements AssetRepositoryInterface
             return Asset::search($search)->paginate($perPage);
         }
         
-        return Asset::select('id', 'asset_no', 'machine_name', 'machine_rank', 'line_name', 'classification')
+        return Asset::select('id', 'asset_no', 'machine_name', 'machine_rank', 'line_name', 'maker', 'manufacture_year')
                     ->latest()
                     ->paginate($perPage);
     }
