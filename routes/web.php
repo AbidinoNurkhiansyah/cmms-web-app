@@ -21,8 +21,8 @@ Route::middleware('auth')->group(function () {
     Volt::route('/dashboard', 'dashboard.index')->name('dashboard');
 
     // Master Data
-    Volt::route('/assets', 'master-data.asset.asset-index')->name('assets.index');
-    Volt::route('/assets/{id}', 'master-data.asset.asset-show')->name('assets.show');
+    Volt::route('/master/assets', 'master-data.asset.asset-index')->name('assets.index');
+    Volt::route('/master/assets/{id}', 'master-data.asset.asset-show')->name('assets.show');
     Volt::route('/spare-parts', 'spare-part.spare-part-index.index')->name('spare-parts.index');
     Volt::route('/master/spare-parts', 'spare-part.master.spare-part-master-index')->name('spare-parts.master');
     Volt::route('/spare-parts/{id}/print-label', 'spare-part.spare-part-index.print-label')->name('spare-parts.print-label')->where('id', '[0-9]+');
