@@ -16,16 +16,32 @@ new #[Layout('layouts.guest')] class extends Component {
             'password' => 'required|string',
         ]);
 
-        // Support login via username or email
-        $field = filter_var($this->username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        // Support login via username, email, or name (associate name)
+        $user = \App\Models\User::where('email', $this->username)
+            ->orWhere('username', $this->username)
+            ->orWhere('name', $this->username)
+            ->first();
 
-        if (Auth::attempt([$field => $this->username, 'password' => $this->password])) {
-            session()->regenerate();
-            session()->flash('success_login', 'Berhasil masuk! Selamat datang, ' . Auth::user()->name . '.');
-            $this->redirect('/dashboard', navigate: true);
+        // Check if user exists and password matches (or if password entered is their JID)
+        if ($user) {
+            if (Auth::attempt(['id' => $user->id, 'password' => $this->password])) {
+                $this->handleSuccessfulLogin();
+            } elseif ($user->jid_no && $this->password === $user->jid_no) {
+                Auth::login($user);
+                $this->handleSuccessfulLogin();
+            } else {
+                $this->error = 'Username or Password is incorrect!';
+            }
         } else {
             $this->error = 'Username or Password is incorrect!';
         }
+    }
+
+    private function handleSuccessfulLogin(): void
+    {
+        session()->regenerate();
+        session()->flash('success_login', 'Berhasil masuk! Selamat datang, ' . Auth::user()->name . '.');
+        $this->redirect('/dashboard', navigate: true);
     }
 };
 ?>
@@ -83,10 +99,10 @@ new #[Layout('layouts.guest')] class extends Component {
             @endif
 
             <form wire:submit="login" class="space-y-5">
-                <x-input label="Username / Email" wire:model="username" placeholder="admin@example.com" icon="o-user"
+                <x-input label="Associate Name" wire:model="username" placeholder="Enter associate name..." icon="o-user"
                     required class="input-bordered focus:input-primary" />
                 <div class="relative">
-                    <x-password label="Password" wire:model="password" placeholder="••••••••"
+                    <x-password label="Password / JID" wire:model="password" placeholder="••••••••"
                         icon="o-lock-closed" right required class="input-bordered focus:input-primary" />
                     <div class="absolute right-0 top-0 text-[11px] mt-2">
                         <a href="#" class="link link-hover link-primary font-medium">Forgot password?</a>
