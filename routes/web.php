@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 
     // User Management
     Volt::route('/users', 'master-data.users.index')->name('users.index');
-    Volt::route('/profile', 'master-data.users.profile')->name('profile');
+    Volt::route('/profile', 'profile.index')->name('profile');
     Volt::route('/master-data/jobdescs', 'master-data.jobdescs.index')->name('jobdescs.index');
 
     // Maintenance - Cardty
