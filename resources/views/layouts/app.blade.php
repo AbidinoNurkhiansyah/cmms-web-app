@@ -121,8 +121,9 @@
 
                 {{-- Master Data --}}
                 <x-menu-sub title="Master Data" icon="o-circle-stack">
-                    @if(auth()->user()->hasRole(\App\Models\User::ROLE_MANAGER))
+                    @if(auth()->user()?->is_admin)
                         <x-menu-item title="User Management" icon="o-users" link="/users" wire:navigate />
+                        <x-menu-item title="Master Data Jobdesc" icon="o-document-text" link="/master-data/jobdescs" wire:navigate />
                     @endif
                     @can('asset.view')
                         <x-menu-item title="Assets" icon="o-cpu-chip" link="/assets" wire:navigate />
