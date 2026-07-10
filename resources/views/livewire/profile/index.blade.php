@@ -149,4 +149,62 @@ new class extends Component {
 
     {{-- Edit Modal --}}
     @include('livewire.profile.partials.edit-modal')
+
+    @script
+    <script>
+        function __createRadarChart(canvasId, data, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+
+            if (!data || data.length === 0) return;
+
+            new Chart(canvas.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: data.map(item => item.skill_name),
+                    datasets: [{
+                        label: 'Actual',
+                        data: data.map(item => item.actual_level),
+                        backgroundColor: color.bg,
+                        borderColor: color.border,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            suggestedMax: 4,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: '#e5e7eb' },
+                            pointLabels: { font: { size: 10, weight: 'bold' } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function __initSkillMatrixCharts() {
+            const container = document.getElementById('skill-matrix-container');
+            if (!container) return;
+
+            const officeData = JSON.parse(container.dataset.officeSkills || '[]');
+            const genbaData = JSON.parse(container.dataset.genbaSkills || '[]');
+
+            __createRadarChart('officeMatrixCanvas', officeData, {
+                bg: 'rgba(235, 105, 54, 0.2)', border: 'rgba(235, 105, 54, 1)'
+            });
+            __createRadarChart('genbaMatrixCanvas', genbaData, {
+                bg: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)'
+            });
+        }
+
+        // Initialize charts immediately
+        __initSkillMatrixCharts();
+    </script>
+    @endscript
 </div>
