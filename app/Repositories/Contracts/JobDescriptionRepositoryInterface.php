@@ -10,4 +10,5 @@ interface JobDescriptionRepositoryInterface
     public function update($id, array $data);
     public function delete($id);
     public function getAllUniqueUnits();
+    public function getByTeamAndUnit($team, $unit);
 }

@@ -51,4 +51,11 @@ class JobDescriptionRepository implements JobDescriptionRepositoryInterface
         }
         return array_values(array_unique($allUnits));
     }
+
+    public function getByTeamAndUnit($team, $unit)
+    {
+        return JobDescription::where('team', $team)
+            ->whereJsonContains('units', $unit)
+            ->get();
+    }
 }

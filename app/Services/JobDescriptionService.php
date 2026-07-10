@@ -25,6 +25,16 @@ class JobDescriptionService
         return $this->jobDescriptionRepository->getAllUniqueUnits();
     }
 
+    public function getUserJobDescriptions($team, $unit)
+    {
+        if (empty($team) || empty($unit)) {
+            return collect();
+        }
+        // Ensure unit is uppercase to match the seeder structure (e.g., "UH", "STL")
+        $unit = strtoupper($unit);
+        return $this->jobDescriptionRepository->getByTeamAndUnit($team, $unit);
+    }
+
     public function createJobDescription(array $data)
     {
         try {
