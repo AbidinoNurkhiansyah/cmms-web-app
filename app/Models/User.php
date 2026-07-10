@@ -4,13 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Searchable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -26,10 +28,9 @@ class User extends Authenticatable
         'position',
         'team',
         'jobdesc',
-        'rank',
-        'repair',
         'status',
         'photo',
+        'is_admin',
         'role',
         'target_new',
         'target_last',
@@ -71,6 +72,25 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'username' => $this->username,
+            'jid_no' => $this->jid_no,
+            'position' => $this->position,
+            'team' => $this->team,
+            'jobdesc' => $this->jobdesc,
+            'status' => $this->status,
+        ];
+    }
 
     /**
      * Get the attributes that should be cast.
