@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Volt::route('/users', 'master-data.users.index')->name('users.index');
     Volt::route('/profile', 'profile.index')->name('profile');
     Volt::route('/master-data/jobdescs', 'master-data.jobdescs.index')->name('jobdescs.index');
+    Volt::route('/master-data/skills', 'master-data.skills.index')->name('skills.index');
+    Volt::route('/master-data/skills/{id}', 'master-data.skills.show')->name('skills.show')->where('id', '[0-9]+');
 
     // Maintenance - Cardty
     Volt::route('/maintenance/cardty', 'maintenance.cardty.index')->name('maintenance.cardty');

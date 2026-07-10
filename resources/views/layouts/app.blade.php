@@ -123,6 +123,7 @@
                 <x-menu-sub title="Master Data" icon="o-circle-stack">
                     @if(auth()->user()?->is_admin)
                         <x-menu-item title="User Management" icon="o-users" link="/users" wire:navigate />
+                        <x-menu-item title="Skill Management" icon="o-academic-cap" link="/master-data/skills" wire:navigate />
                         <x-menu-item title="Master Data Jobdesc" icon="o-document-text" link="/master-data/jobdescs" wire:navigate />
                     @endif
                     @can('asset.view')

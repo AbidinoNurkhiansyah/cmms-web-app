@@ -109,4 +109,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Overtime::class);
     }
+
+    public function trainingSkills()
+    {
+        return $this->hasMany(TrainingSkill::class);
+    }
 }
