@@ -30,6 +30,11 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\CartyRepositoryInterface::class,
             \App\Repositories\Eloquent\CartyRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Contracts\JobDescriptionRepositoryInterface::class,
+            \App\Repositories\Eloquent\JobDescriptionRepository::class
+        );
     }
 
     /**
