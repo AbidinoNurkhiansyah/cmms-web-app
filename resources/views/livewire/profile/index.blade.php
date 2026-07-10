@@ -104,10 +104,10 @@ new class extends Component {
             'userJobDescriptions' => $jobDescriptionService->getUserJobDescriptions($this->team, $this->jobdesc),
             'activityStats' => $userActivityService->getUserActivityStats($this->jid_no, $userId),
             'officeSkills' => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'OFFICE')->get(),
-            'genbaSkills'  => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'GENBA')->get(),
-            'elecSkills'   => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'ELECTRICAL')->get(),
-            'mechSkills'   => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'MECHANICAL')->get(),
-            'advElecSkills'=> \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'ADV ELECTRICAL')->get(),
+            'genbaSkills' => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'GENBA')->get(),
+            'elecSkills' => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'ELECTRICAL')->get(),
+            'mechSkills' => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'MECHANICAL')->get(),
+            'advElecSkills' => \App\Models\TrainingSkill::where('user_id', $userId)->where('category', 'ADV ELECTRICAL')->get(),
             'unitOptions' => $unitOptions->toArray(),
             'positionOptions' => $positionOptions->toArray(),
             'teamOptions' => $teamOptions->toArray(),
@@ -134,15 +134,14 @@ new class extends Component {
 
         <!-- Right Content: Job Desc, Activity Chart, Skill Matrix -->
         <div class="xl:col-span-8 space-y-4">
-            <x-card title="Job Description" shadow class="bg-base-100">
-                @include('livewire.profile.partials.job-description')
-            </x-card>
-
             @include('livewire.profile.partials.skill-matrix', [
                 'officeSkills' => $officeSkills,
                 'genbaSkills' => $genbaSkills
             ])
-            @include('livewire.profile.partials.activity-chart', ['activityStats' => $activityStats])
+                        @include('livewire.profile.partials.activity-chart', ['activityStats' => $activityStats])
+            <x-card title="Job Description" shadow class="bg-base-100">
+    @include('livewire.profile.partials.job-description')
+</x-card>
             
         </div>
         
