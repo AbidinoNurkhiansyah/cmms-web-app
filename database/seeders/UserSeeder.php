@@ -73,6 +73,7 @@ class UserSeeder extends Seeder
                 'team'     => 'MTC',
                 'role'     => User::ROLE_MANAGER,
                 'status'   => 'Active',
+                'is_admin' => true,
             ]
         );
 
