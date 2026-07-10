@@ -58,4 +58,9 @@ class UserService
             'password' => Hash::make($newPassword),
         ]);
     }
+
+    public function deleteUser(int $id): mixed
+    {
+        return $this->userRepository->delete($id);
+    }
 }

@@ -9,17 +9,17 @@ class UserRepository implements UserRepositoryInterface
 {
     public function getAllPaginated(int $perPage = 25, string $search = '')
     {
-        $query = User::query()->orderBy('jid_no');
-
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('jid_no', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
-            });
+            return User::search($search)
+                ->query(fn ($query) => $query->select('id', 'jid_no', 'name', 'username', 'position', 'team', 'jobdesc', 'photo', 'status', 'is_admin'))
+                ->orderBy('jid_no', 'asc')
+                ->paginate($perPage);
         }
 
-        return $query->paginate($perPage);
+        return User::query()
+            ->select('id', 'jid_no', 'name', 'username', 'position', 'team', 'jobdesc', 'photo', 'status', 'is_admin')
+            ->orderBy('jid_no')
+            ->paginate($perPage);
     }
 
     public function findById(int $id)
@@ -49,5 +49,11 @@ class UserRepository implements UserRepositoryInterface
         $user = User::findOrFail($id);
         $user->update(['status' => $status]);
         return $user;
+    }
+
+    public function delete(int $id)
+    {
+        $user = User::findOrFail($id);
+        return $user->delete();
     }
 }
