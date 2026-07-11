@@ -31,6 +31,7 @@ new class extends Component {
     public string $editRank       = '';
     public ?int   $editYear       = null;
     public $editPhoto             = null;
+    public ?string $editCurrentPhoto = null;
 
     public function updatedSearch(): void
     {
@@ -39,11 +40,18 @@ new class extends Component {
 
     public function with(AssetService $assetService): array
     {
+        $currentYear = (int)date('Y');
+        $yearOptions = [];
+        for ($i = $currentYear; $i >= 2000; $i--) {
+            $yearOptions[] = ['id' => $i, 'name' => (string)$i];
+        }
+
         return [
-            'assets'    => $assetService->getPaginatedAssets(25, $this->search),
+            'assets'      => $assetService->getPaginatedAssets(25, $this->search),
             'lineOptions' => collect($assetService->getDistinctLines())
                 ->map(fn($l) => ['id' => $l, 'name' => $l])
                 ->toArray(),
+            'yearOptions' => $yearOptions,
         ];
     }
 
@@ -85,6 +93,7 @@ new class extends Component {
         $this->editRank        = $a->machine_rank ?? '';
         $this->editYear        = $a->manufacture_year;
         $this->editPhoto       = null;
+        $this->editCurrentPhoto= $a->machine_photo;
         $this->editModal       = true;
     }
 
