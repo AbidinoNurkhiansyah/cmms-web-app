@@ -44,8 +44,11 @@
         </x-card>
 
         {{-- Spare Parts Card with Chart --}}
-        <x-card class="cursor-pointer hover:shadow-lg transition-shadow text-center flex flex-col justify-center items-center" wire:click="$set('showSparepartModal', true)">
-            <h6 class="font-semibold mb-2">Spare Parts</h6>
+        <x-card class="hover:shadow-lg transition-shadow text-center flex flex-col justify-center items-center relative">
+            <div class="flex justify-center items-center w-full mb-2">
+                <h6 class="font-semibold">Spare Parts</h6>
+            </div>
+            <div class="cursor-pointer w-full flex flex-col justify-center items-center" wire:click="$set('showSparepartModal', true)">
             @if(empty($sparePartsChartData['data']))
                 <div class="w-full max-w-[200px] aspect-square flex flex-col justify-center items-center opacity-50 bg-base-200 rounded-full my-4">
                     <x-icon name="o-archive-box-x-mark" class="w-8 h-8 mb-2" />
@@ -79,5 +82,6 @@
                 </div>
             @endif
             <p class="text-xs opacity-60 mt-2">Click to view details</p>
+            </div>
         </x-card>
     </div>

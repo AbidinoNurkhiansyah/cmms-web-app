@@ -62,25 +62,40 @@ class AssetService
     {
         $stats = DB::table('machine_spare_parts')
             ->join('spare_parts', 'machine_spare_parts.spare_part_id', '=', 'spare_parts.id')
-            ->selectRaw("spare_parts.`group` as Rangking, 
+            ->selectRaw("IFNULL(spare_parts.`rank`, 'N/A') as Rangking, 
                          COUNT(CASE WHEN spare_parts.last_stock > 0 THEN 1 END) as tersedia,
                          COUNT(CASE WHEN spare_parts.last_stock <= 0 OR spare_parts.last_stock IS NULL THEN 1 END) as tidak_tersedia")
             ->where('machine_spare_parts.asset_no', 'LIKE', "%{$assetNo}%")
-            ->groupBy('spare_parts.group')
+            ->groupBy('spare_parts.rank')
             ->get();
 
         $labels = [];
         $data = [];
         $colors = [];
 
-        foreach ($stats as $stat) {
-            $labels[] = $stat->Rangking . ' - Tersedia';
-            $data[] = (int)$stat->tersedia;
-            $colors[] = '#10b981'; // success
+        $rankColors = [
+            'A'   => ['tersedia' => '#059669', 'tidak_tersedia' => '#b91c1c'], // Darker Green/Red
+            'B'   => ['tersedia' => '#10b981', 'tidak_tersedia' => '#ef4444'], // Base Green/Red
+            'C'   => ['tersedia' => '#34d399', 'tidak_tersedia' => '#f87171'], // Lighter Green/Red
+            'D'   => ['tersedia' => '#6ee7b7', 'tidak_tersedia' => '#fca5a5'], // Even Lighter
+            'N/A' => ['tersedia' => '#a7f3d0', 'tidak_tersedia' => '#fecaca'], // Lightest
+        ];
 
-            $labels[] = $stat->Rangking . ' - Tidak Tersedia';
-            $data[] = (int)$stat->tidak_tersedia;
-            $colors[] = '#ef4444'; // error
+        foreach ($stats as $stat) {
+            $rank = $stat->Rangking;
+            $theme = $rankColors[$rank] ?? $rankColors['N/A'];
+
+            if ($stat->tersedia > 0) {
+                $labels[] = $rank . ' - Tersedia';
+                $data[] = (int)$stat->tersedia;
+                $colors[] = $theme['tersedia'];
+            }
+
+            if ($stat->tidak_tersedia > 0) {
+                $labels[] = $rank . ' - Tidak Tersedia';
+                $data[] = (int)$stat->tidak_tersedia;
+                $colors[] = $theme['tidak_tersedia'];
+            }
         }
 
         return [
