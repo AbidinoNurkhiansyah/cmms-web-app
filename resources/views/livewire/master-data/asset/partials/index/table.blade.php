@@ -1,8 +1,8 @@
 <x-card>
     <x-table :headers="[
+        ['key' => 'line_name', 'label' => 'Line'],
         ['key' => 'asset_no', 'label' => 'Asset No'],
         ['key' => 'machine_name', 'label' => 'Machine Name'],
-        ['key' => 'line_name', 'label' => 'Line'],
         ['key' => 'maker', 'label' => 'Maker'],
         ['key' => 'machine_rank', 'label' => 'Rank'],
         ['key' => 'manufacture_year', 'label' => 'Year'],
