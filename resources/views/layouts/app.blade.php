@@ -14,6 +14,15 @@
         .toast progress { 
             display: none !important; 
         }
+
+        /* Membatasi tinggi form dropdown multiple choices */
+        .choices__list--multiple {
+            max-height: 110px !important;
+            overflow-y: auto !important;
+        }
+        .choices[data-type*="select-multiple"] .choices__inner {
+            align-items: flex-start !important;
+        }
     </style>
 </head>
 
