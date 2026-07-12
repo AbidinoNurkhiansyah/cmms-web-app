@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     // Checksheet
     Volt::route('/checksheet', 'checksheet.index')->name('checksheet.index');
+    Volt::route('/checksheet/master', 'master-data.checksheet.index')->name('checksheet.master');
 
     // Deep Cleaning / TPM
     Volt::route('/deep-cleaning', 'deep-cleaning.record.index')->name('deep-cleaning.index');
