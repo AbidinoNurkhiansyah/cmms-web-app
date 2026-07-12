@@ -21,14 +21,18 @@ new class extends Component {
     public string $part_number = '';
     public string $part_name = '';
     public string $no_rack = '';
+    public ?string $rank = null;
     public int $last_stock = 0;
     public string $maker = '';
-    public string $machine = '';
+    public array $machine = [];
     public string $status = 'Y';
     public int $use_qty = 0;
     public int $price_idr = 0;
     public $part_photo; // For new uploads
     public ?string $existing_photo = null;
+    
+    // Dropdown Data
+    public array $assets = [];
 
     // For Delete
     public ?int $deleteId = null;
@@ -41,6 +45,7 @@ new class extends Component {
     public function openAdd(): void
     {
         $this->resetForm();
+        $this->searchMachines(''); // Initial load
         $this->formModal = true;
     }
 
@@ -57,12 +62,22 @@ new class extends Component {
             $this->no_rack = $part->no_rack ?? '';
             $this->last_stock = $part->last_stock ?? 0;
             $this->maker = $part->maker ?? '';
-            $this->machine = $part->machine ?? '';
+            
+            // Prepend MAC- to prevent JS/Livewire numeric casting issues
+            $machinePivot = \App\Models\MachineSparePart::where('spare_part_id', $part->id)->pluck('asset_no')->toArray();
+            $this->machine = array_map(fn($m) => 'MAC-' . $m, $machinePivot);
+            
             $this->status = $part->status ?? 'Y';
+            $this->rank = $part->rank;
+            if (in_array(strtoupper($this->status), ['ACTIVE', 'AKTIF', '1'])) $this->status = 'Y';
+            if (in_array(strtoupper($this->status), ['DISCONTINUED', 'INACTIVE', 'TIDAK AKTIF', '0'])) $this->status = 'N';
+            
             $this->use_qty = $part->use_qty ?? 0;
             $this->price_idr = $part->price_idr ?? 0;
             $this->existing_photo = $part->part_photo;
 
+            // Load selected machines + search pool
+            $this->searchMachines('');
             $this->formModal = true;
         }
     }
@@ -79,9 +94,11 @@ new class extends Component {
             'part_name' => 'required|string|max:255',
             'part_number' => 'nullable|string|max:100',
             'group' => 'nullable|string|max:100',
+            'rank' => 'nullable|in:A,B,C,D',
             'no_rack' => 'nullable|string|max:50',
             'maker' => 'nullable|string|max:100',
-            'machine' => 'nullable|string|max:100',
+            'machine' => 'nullable|array',
+            'machine.*' => 'string',
             'last_stock' => 'required|integer|min:0',
             'use_qty' => 'required|integer|min:0',
             'price_idr' => 'required|numeric|min:0',
@@ -89,13 +106,19 @@ new class extends Component {
             'part_photo' => 'nullable|image|max:2048', // max 2MB
         ]);
 
+        // Strip MAC- prefix before saving
+        $cleanMachines = array_map(function($m) {
+            return str_replace('MAC-', '', $m);
+        }, $this->machine ?? []);
+        
         $data = [
             'part_name' => $this->part_name,
             'part_number' => $this->part_number,
             'group' => $this->group,
+            'rank' => $this->rank,
             'no_rack' => $this->no_rack,
             'maker' => $this->maker,
-            'machine' => $this->machine,
+            'machine' => $cleanMachines,
             'last_stock' => $this->last_stock,
             'use_qty' => $this->use_qty,
             'price_idr' => $this->price_idr,
@@ -132,6 +155,7 @@ new class extends Component {
             'part_number',
             'part_name',
             'no_rack',
+            'rank',
             'last_stock',
             'maker',
             'machine',
@@ -144,6 +168,33 @@ new class extends Component {
         $this->status = 'Y'; // default value
     }
 
+    public function searchMachines(string $value = ''): void
+    {
+        $query = \App\Models\Asset::query();
+        
+        if (!empty($value)) {
+            $query->where(function($q) use ($value) {
+                $q->where('machine_name', 'like', "%{$value}%")
+                  ->orWhere('asset_no', 'like', "%{$value}%");
+            });
+        }
+        
+        $results = $query->orderBy('machine_name')->take(50)->get();
+        
+        if (!empty($this->machine) && is_array($this->machine)) {
+            $cleanMachines = array_map(fn($m) => str_replace('MAC-', '', $m), $this->machine);
+            $selected = \App\Models\Asset::whereIn('asset_no', $cleanMachines)->get();
+            $results = $results->merge($selected)->unique('asset_no');
+        }
+        
+        $this->assets = $results->map(function($asset) {
+            return [
+                'id' => 'MAC-' . $asset->asset_no,
+                'name' => $asset->machine_name
+            ];
+        })->toArray();
+    }
+
     public function with(SparePartService $sparePartService): array
     {
         $headers = [
@@ -151,6 +202,7 @@ new class extends Component {
             ['key' => 'part_name', 'label' => 'Part Name'],
             ['key' => 'part_number', 'label' => 'Part Number'],
             ['key' => 'maker', 'label' => 'Maker'],
+            ['key' => 'rank', 'label' => 'Rank', 'class' => 'text-center'],
             ['key' => 'no_rack', 'label' => 'Rack'],
             ['key' => 'last_stock', 'label' => 'Stock'],
             ['key' => 'actions', 'label' => 'Actions', 'class' => 'w-24 text-center']

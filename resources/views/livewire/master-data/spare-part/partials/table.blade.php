@@ -5,11 +5,28 @@
         @endscope
 
         @scope('cell_status', $part)
-        @if($part->status === 'Y')
+        @if(in_array(strtoupper($part->status), ['Y', 'ACTIVE', 'AKTIF', '1']))
             <x-badge value="Active" class="badge-success" />
         @else
             <x-badge value="Discontinued" class="badge-error" />
         @endif
+        @endscope
+
+        @scope('cell_rank', $part)
+            @if($part->rank)
+                <x-badge value="{{ $part->rank }}"
+                    class="{{
+                        match($part->rank) {
+                            'A' => 'badge-error text-white',
+                            'B' => 'badge-warning',
+                            'C' => 'badge-info text-white',
+                            'D' => 'badge-success text-white',
+                            default => 'badge-ghost'
+                        }
+                    }}" />
+            @else
+                —
+            @endif
         @endscope
 
         @scope('cell_actions', $part)
