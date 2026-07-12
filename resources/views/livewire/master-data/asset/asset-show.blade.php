@@ -20,11 +20,7 @@ new class extends Component {
     public bool $showOverhaulModal = false;
     public bool $showWorkOrderModal = false;
     public bool $showOneHourModal = false;
-    public bool $showAssignSparepartModal = false;
 
-    // Assignment State
-    public array $selectedSpareParts = [];
-    public array $allSparePartsForAssignment = [];
 
     // Filters & Chart Data
     public int $chartYear;
@@ -59,88 +55,8 @@ new class extends Component {
         $this->timeTrendData = $assetService->getTrendData($this->assetNo, $this->timeChartYear);
     }
 
-    public function openAssignSparepartModal()
-    {
-        $this->selectedSpareParts = DB::table('machine_spare_parts')
-            ->where('asset_no', 'LIKE', "%{$this->assetNo}%")
-            ->pluck('spare_part_id')
-            ->map(fn($id) => (string)$id)
-            ->toArray();
-        $this->searchSpareParts('');
-        $this->showAssignSparepartModal = true;
-    }
 
-    public function searchSpareParts(string $value = '')
-    {
-        $query = \App\Models\SparePart::select('id', 'part_name', 'part_number');
-        if (!empty($value)) {
-            $query->where(function($q) use ($value) {
-                $q->where('part_name', 'like', "%{$value}%")
-                  ->orWhere('part_number', 'like', "%{$value}%");
-            });
-        }
-        
-        $results = $query->orderBy('part_name')->take(50)->get();
-        
-        if (!empty($this->selectedSpareParts) && is_array($this->selectedSpareParts)) {
-            $selected = \App\Models\SparePart::select('id', 'part_name', 'part_number')
-                ->whereIn('id', $this->selectedSpareParts)
-                ->get();
-                
-            $results = $results->merge($selected)->unique('id');
-        }
-        
-        $this->allSparePartsForAssignment = $results->map(function($sp) {
-                return [
-                    'id' => (string)$sp->id,
-                    'name' => $sp->part_name . ($sp->part_number ? " ({$sp->part_number})" : '')
-                ];
-            })->toArray();
-    }
 
-    public function syncSpareParts()
-    {
-        $existingPivot = DB::table('machine_spare_parts')
-            ->where('asset_no', 'LIKE', "%{$this->assetNo}%")
-            ->pluck('spare_part_id')
-            ->toArray();
-            
-        $newSelection = array_map('intval', $this->selectedSpareParts);
-
-        $toInsert = array_diff($newSelection, $existingPivot);
-        $toDelete = array_diff($existingPivot, $newSelection);
-
-        if (!empty($toDelete)) {
-            DB::table('machine_spare_parts')
-                ->where('asset_no', 'LIKE', "%{$this->assetNo}%")
-                ->whereIn('spare_part_id', $toDelete)
-                ->delete();
-        }
-
-        if (!empty($toInsert)) {
-            $asset = app(AssetService::class)->getAssetById($this->assetId);
-            $insertData = [];
-            foreach ($toInsert as $spId) {
-                $insertData[] = [
-                    'spare_part_id' => $spId,
-                    'line' => $asset->line_name ?? '-',
-                    'asset_no' => $asset->asset_no,
-                    'machine' => $asset->machine_name ?? '-',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
-            if (!empty($insertData)) {
-                DB::table('machine_spare_parts')->insert($insertData);
-            }
-        }
-
-        $this->showAssignSparepartModal = false;
-        
-        // Refresh chart data by re-fetching
-        $assetService = app(AssetService::class);
-        $this->trendData = $assetService->getTrendData($this->assetNo, $this->chartYear); // just triggering re-render if needed, actually it auto re-renders with()
-    }
 
     public function with(AssetService $assetService): array
     {
