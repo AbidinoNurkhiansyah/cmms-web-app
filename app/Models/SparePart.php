@@ -13,6 +13,7 @@ class SparePart extends Model
 
     protected $fillable = [
         'group',
+        'rank',
         'group_id',
         'part_number',
         'part_name',
