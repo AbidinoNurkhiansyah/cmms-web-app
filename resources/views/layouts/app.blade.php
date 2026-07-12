@@ -85,7 +85,7 @@
                 @can('wr.view')
                 <x-menu-sub title="Maintenance" icon="o-wrench-screwdriver">
                     <x-menu-item title="Cardty" icon="o-clipboard-document-list" link="/maintenance/cardty" wire:navigate />
-                    <x-menu-item title="Check Sheet" icon="o-document-check" link="/checksheet" wire:navigate />
+                    <x-menu-item title="Check Sheet" icon="o-document-check" link="/checksheet" exact wire:navigate />
                     <x-menu-item title="CS Monitoring" icon="o-computer-desktop" link="/checksheet/monitoring" wire:navigate />
                     <x-menu-item title="Andon" icon="o-bell" link="/andon" wire:navigate />
                     <x-menu-item title="One Hour Over" icon="o-clock" link="/maintenance/one-hour-over" wire:navigate />
