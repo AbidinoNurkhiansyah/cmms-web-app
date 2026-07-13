@@ -45,7 +45,9 @@ Route::middleware('auth')->group(function () {
     Volt::route('/maintenance/cardty/{id}', 'maintenance.cardty.show')->name('maintenance.cardty.show');
 
     // Checksheet
-    Volt::route('/checksheet', 'checksheet.index')->name('checksheet.index');
+    Volt::route('/maintenance/checksheet', 'maintenance.checksheet.index')->name('maintenance.checksheet.index');
+    Volt::route('/maintenance/checksheet-monitoring', 'maintenance.checksheet.monitoring')->name('maintenance.checksheet.monitoring');
+    Volt::route('/maintenance/checksheet/{assetNo}', 'maintenance.checksheet.detail')->name('maintenance.checksheet.detail');
     Volt::route('/checksheet/master', 'master-data.checksheet.index')->name('checksheet.master');
 
     // Deep Cleaning / TPM
