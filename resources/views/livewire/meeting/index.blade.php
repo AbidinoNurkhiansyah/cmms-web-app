@@ -2,64 +2,94 @@
 
 use App\Models\Carty;
 use App\Models\WorkOrder;
-use App\Models\Tpm;
+use App\Models\DeepCleaning;
 use App\Models\Overhaul;
 use App\Models\Sky;
+use App\Models\RollingBreak;
+use App\Models\SparePartRepair;
+use App\Models\Information;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    
-    public $mtcA_records = [];
-    public $mtcB_records = [];
-    public $workOrders = [];
-    public $tpmRecords = [];
+
+    public $mtcA_records    = [];
+    public $mtcB_records    = [];
+    public $workOrders      = [];
+    public $tpmRecords      = [];
     public $overhaulRecords = [];
-    public $skyRecords = [];
+    public $skyRecords      = [];
+    public $rollingBreaks   = [];
+    public $partRepairs     = [];
+    public $myInfos         = [];
 
-    public function mount()
+    public function mount(): void
     {
-        $yesterday = now()->subDay()->startOfDay();
-        $tomorrow = now()->addDay()->endOfDay();
+        // Senin = ambil 3 hari ke belakang, hari lain = 1 hari
+        $x       = (date('N') == 1) ? 3 : 1;
+        $minDate = now()->subDays($x)->setTime(7, 30, 0);
+        $maxDate = now()->addDay()->setTime(7, 30, 0);
 
-        // 1. MTC A Carty
         $this->mtcA_records = Carty::where('groupline', 'MTC A')
-            ->whereBetween('Date', [$yesterday, $tomorrow])
+            ->whereBetween('start_time', [$minDate, $maxDate])
             ->where('DownTime', '>', 30)
             ->orderByDesc('id')
-            ->take(5)
+            ->take(10)
             ->get();
 
-        // 2. MTC B Carty
         $this->mtcB_records = Carty::where('groupline', 'MTC B')
-            ->whereBetween('Date', [$yesterday, $tomorrow])
+            ->whereBetween('start_time', [$minDate, $maxDate])
             ->where('DownTime', '>', 30)
             ->orderByDesc('id')
-            ->take(5)
+            ->take(10)
             ->get();
 
-        // 3. Work Orders
-        $this->workOrders = WorkOrder::whereBetween('date', [$yesterday, $tomorrow])
+        $this->workOrders = WorkOrder::whereBetween('actual_date', [
+                $minDate->copy()->startOfDay(),
+                $maxDate->copy()->endOfDay(),
+            ])
             ->where('status', 'Closed')
             ->orderByDesc('id')
-            ->take(5)
+            ->take(10)
             ->get();
 
-        // 4. TPM (Deep Cleaning)
-        $this->tpmRecords = Tpm::where('Date', '>=', now()->subDays(3)->startOfDay())
+        $this->tpmRecords = DeepCleaning::where('Date', '>=', $minDate->copy()->startOfDay())
             ->orderByDesc('id')
-            ->take(5)
+            ->take(10)
             ->get();
 
-        // 5. Overhaul
-        $this->overhaulRecords = Overhaul::where('Date', '>=', now()->subDays(3)->startOfDay())
+        $this->overhaulRecords = Overhaul::where('date', '>=', $minDate->copy()->startOfDay())
             ->orderByDesc('id')
-            ->take(5)
+            ->take(10)
             ->get();
 
-        // 6. SKY
-        $this->skyRecords = Sky::where('date', '>=', now()->startOfDay())
+        $this->skyRecords = Sky::with('user')
+            ->where('date', '>=', now()->startOfDay())
             ->orderByDesc('no')
-            ->take(5)
+            ->take(10)
+            ->get();
+
+        $this->rollingBreaks = RollingBreak::with('user')
+            ->whereBetween('date_input', [$minDate, $maxDate])
+            ->orderByDesc('date_input')
+            ->take(10)
+            ->get();
+
+        $this->partRepairs = SparePartRepair::with(['pic1', 'pic2', 'pic3', 'sparePart'])
+            ->whereBetween('date', [
+                $minDate->copy()->startOfDay(),
+                $maxDate->copy()->endOfDay(),
+            ])
+            ->orderByDesc('id')
+            ->take(10)
+            ->get();
+
+        $this->myInfos = Information::with('user')
+            ->whereBetween('date', [
+                $minDate->copy()->startOfDay(),
+                $maxDate->copy()->endOfDay(),
+            ])
+            ->orderByDesc('id')
+            ->take(10)
             ->get();
     }
 };
@@ -68,153 +98,15 @@ new class extends Component {
 <div>
     <x-header title="Meeting Dashboard / Information Center" separator progress-indicator />
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-        <!-- MTC A -->
-        <x-card title="Maintenance Team A [Downtime > 30 min]" class="border-t-4 border-t-primary">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Line</th>
-                            <th>Machine</th>
-                            <th>Time</th>
-                            <th>Problem</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($mtcA_records as $r)
-                        <tr>
-                            <td>{{ $r->Date ? $r->Date->format('d M') : '-' }}</td>
-                            <td>{{ $r->LineName }}</td>
-                            <td>{{ $r->MachineName }}</td>
-                            <td>{{ $r->DownTime }}m</td>
-                            <td class="text-error font-semibold">{{ $r->Problem }}</td>
-                            <td>{{ $r->Status }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="6" class="text-center text-gray-500 py-3">No major issues.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
+    <div x-data="{ tab: 'maintenance' }">
 
-        <!-- MTC B -->
-        <x-card title="Maintenance Team B [Downtime > 30 min]" class="border-t-4 border-t-secondary">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Line</th>
-                            <th>Machine</th>
-                            <th>Time</th>
-                            <th>Problem</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($mtcB_records as $r)
-                        <tr>
-                            <td>{{ $r->Date ? $r->Date->format('d M') : '-' }}</td>
-                            <td>{{ $r->LineName }}</td>
-                            <td>{{ $r->MachineName }}</td>
-                            <td>{{ $r->DownTime }}m</td>
-                            <td class="text-error font-semibold">{{ $r->Problem }}</td>
-                            <td>{{ $r->Status }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="6" class="text-center text-gray-500 py-3">No major issues.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
-    </div>
+        @include('livewire.meeting.partials.tab-nav')
 
-    <!-- Additional Tables Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- Work Orders -->
-        <x-card title="Work Orders (Closed)">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead><tr><th>Line</th><th>Desc</th><th>PIC</th></tr></thead>
-                    <tbody>
-                        @forelse($workOrders as $wo)
-                        <tr>
-                            <td>{{ $wo->LineName }}</td>
-                            <td class="truncate max-w-[100px]">{{ $wo->problem_description }}</td>
-                            <td>{{ $wo->pic }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="3" class="text-center text-gray-500">No data</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
-
-        <!-- Deep Cleaning -->
-        <x-card title="Deep Cleaning (TPM)">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead><tr><th>Date</th><th>Line</th><th>Machine</th></tr></thead>
-                    <tbody>
-                        @forelse($tpmRecords as $tpm)
-                        <tr>
-                            <td>{{ $tpm->Date ? $tpm->Date->format('d M') : '-' }}</td>
-                            <td>{{ $tpm->LineName }}</td>
-                            <td>{{ $tpm->MachineName }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="3" class="text-center text-gray-500">No data</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
-
-        <!-- Overhaul -->
-        <x-card title="Overhaul">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead><tr><th>Date</th><th>Line</th><th>Machine</th></tr></thead>
-                    <tbody>
-                        @forelse($overhaulRecords as $oh)
-                        <tr>
-                            <td>{{ $oh->Date ? $oh->Date->format('d M') : '-' }}</td>
-                            <td>{{ $oh->LineName }}</td>
-                            <td>{{ $oh->MachineName }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="3" class="text-center text-gray-500">No data</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
-
-        <!-- SKY -->
-        <x-card title="SKY (Safety)">
-            <div class="overflow-x-auto">
-                <table class="table table-xs w-full">
-                    <thead><tr><th>Loc</th><th>User ID</th></tr></thead>
-                    <tbody>
-                        @forelse($skyRecords as $sky)
-                        <tr>
-                            <td>{{ $sky->lokasi }}</td>
-                            <td>{{ $sky->userId }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="2" class="text-center text-gray-500">No data</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
+        @include('livewire.meeting.partials.maintenance')
+        @include('livewire.meeting.partials.work-orders')
+        @include('livewire.meeting.partials.part-repair')
+        @include('livewire.meeting.partials.tpm-overhaul')
+        @include('livewire.meeting.partials.safety-info')
 
     </div>
 </div>
