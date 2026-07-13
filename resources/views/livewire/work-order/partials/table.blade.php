@@ -4,7 +4,9 @@
             icon="o-magnifying-glass" />
     </x-slot:middle>
     <x-slot:actions>
-        <x-button label="Add Work Order" icon="o-plus" class="btn-primary" wire:click="openAdd" />
+        <x-button label="Export" icon="o-document-arrow-down" class="btn-outline btn-success" wire:click="openExport"
+            spinner />
+        <x-button label="Add Work Order" icon="o-plus" class="btn-primary" wire:click="openAdd" spinner />
     </x-slot:actions>
 </x-header>
 
@@ -48,8 +50,7 @@
         ['key' => 'due_date', 'label' => 'Due Date'],
         ['key' => 'action', 'label' => 'Action', 'class' => 'text-center'],
     ]" :rows="$workOrders" with-pagination
-        @row-click="Livewire.navigate('{{ url('/work-orders') }}/' + $event.detail.id)"
-        class="hover:cursor-pointer">
+        @row-click="Livewire.navigate('{{ url('/work-orders') }}/' + $event.detail.id)" class="hover:cursor-pointer">
         @scope('cell_date', $wo)
         <div class="text-sm">{{ $wo->date ? $wo->date->format('Y-m-d') : '-' }}</div>
         @endscope
