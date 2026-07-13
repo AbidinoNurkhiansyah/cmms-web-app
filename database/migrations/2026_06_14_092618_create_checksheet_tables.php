@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('line_name', 100)->nullable();
             $table->string('item_check')->nullable();
             $table->string('standard')->nullable();
-            $table->string('method', 50)->nullable();
+            $table->string('method')->nullable();
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
