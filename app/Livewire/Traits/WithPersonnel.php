@@ -15,13 +15,21 @@ trait WithPersonnel
         $this->users = User::all();
     }
 
+    public ?string $personnelTeamFilter = null;
+
     public function searchUser(string $value = '')
     {
-        if (empty($value)) {
-            $this->users = User::all();
-        } else {
-            $this->users = User::where('name', 'like', "%{$value}%")->get();
+        $query = User::query();
+
+        if ($this->personnelTeamFilter) {
+            $query->where('team', $this->personnelTeamFilter);
         }
+
+        if (!empty($value)) {
+            $query->where('name', 'like', "%{$value}%");
+        }
+
+        $this->users = $query->get();
     }
 
     public function addPic()

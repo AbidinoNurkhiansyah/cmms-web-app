@@ -18,9 +18,6 @@ new class extends Component {
     public bool $addModal = false;
     public WorkOrderAddForm $addForm;
 
-    public bool $editModal = false;
-    public WorkOrderEditForm $editForm;
-
     public function mount(): void
     {
         $this->mountWithAssetSelection();
@@ -67,25 +64,6 @@ new class extends Component {
         $this->success('Work Order created successfully.');
     }
 
-    public function openEdit(int $id, WorkOrderService $woService): void
-    {
-        $wo = $woService->getPaginated()->getCollection()->firstWhere('id', $id);
-        if(!$wo) {
-            $this->error('Work Order not found.');
-            return;
-        }
-
-        $this->editForm->initForm($wo);
-        $this->editModal = true;
-    }
-
-    public function saveEdit(WorkOrderService $woService): void
-    {
-        $this->editForm->update($woService);
-        $this->editModal = false;
-        $this->success('Work Order updated successfully.');
-    }
-
     public function deleteWO(int $id, WorkOrderService $woService): void
     {
         $woService->delete($id);
@@ -100,6 +78,5 @@ new class extends Component {
     @include('livewire.work-order.partials.table')
 
     @include('livewire.work-order.partials.add-modal')
-    @include('livewire.work-order.partials.edit-modal')
 </div>
 

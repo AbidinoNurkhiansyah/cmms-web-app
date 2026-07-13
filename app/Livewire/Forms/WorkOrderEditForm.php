@@ -81,6 +81,17 @@ class WorkOrderEditForm extends Form
         $this->validate();
 
         $data = [
+            'date'              => $this->date ?: null,
+            'target_date'       => $this->target_date ?: null,
+            'order_type'        => $this->order_type,
+            'requester'         => $this->requester,
+            'department'        => $this->department,
+            'LineName'          => $this->line_name,
+            'MachineNo'         => $this->machine_no,
+            'MachineName'       => $this->machine_name,
+            'problem_description' => $this->problem,
+            'priority'          => $this->priority,
+            
             'confirmation_note' => $this->confirmation_note,
             'status'            => $this->status,
             'actual_date'       => $this->actual_date ?: null,

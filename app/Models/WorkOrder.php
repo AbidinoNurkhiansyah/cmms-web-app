@@ -22,4 +22,9 @@ class WorkOrder extends Model
         'target_date' => 'date',
         'actual_date' => 'date',
     ];
+
+    public function spareparts()
+    {
+        return $this->hasMany(WorkOrderSparepart::class, 'work_order_id');
+    }
 }
