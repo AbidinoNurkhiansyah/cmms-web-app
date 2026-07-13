@@ -12,6 +12,7 @@ new class extends Component {
     use WithPagination, Toast;
 
     public string $search = '';
+    public int $perPage = 10;
     public string $statusFilter = '';
     public string $startDateFilter = '';
     public string $endDateFilter = '';
@@ -96,6 +97,11 @@ new class extends Component {
         $this->resetPage();
     }
 
+    public function updatedPerPage(): void
+    {
+        $this->resetPage();
+    }
+
     public function updatedStatusFilter(): void
     {
         $this->resetPage();
@@ -119,7 +125,7 @@ new class extends Component {
 
     public function with(CartyService $service): array
     {
-        $records = $service->getPaginated(15, $this->search, $this->statusFilter, $this->startDateFilter, $this->endDateFilter);
+        $records = $service->getPaginated($this->perPage, $this->search, $this->statusFilter, $this->startDateFilter, $this->endDateFilter);
         $records->getCollection()->transform(function ($item, $key) use ($records) {
             $item->index = $records->firstItem() + $key;
             return $item;
@@ -178,10 +184,10 @@ new class extends Component {
     <!-- Mobile Actions -->
     <div class="grid grid-cols-4 gap-2 mb-4 sm:hidden">
         <div class="col-span-3">
-            <x-input placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+            <x-input id="search-mobile" placeholder="Search problem, line..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
         </div>
         <div class="col-span-1">
-            <x-select wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" class="w-full" />
+            <x-select id="perPage-mobile" wire:model.live="perPage" :options="[['id'=>10,'name'=>'10'],['id'=>25,'name'=>'25'],['id'=>50,'name'=>'50'],['id'=>100,'name'=>'100']]" option-value="id" option-label="name" class="w-full" />
         </div>
         <div class="col-span-1">
             <x-button icon="o-funnel" @click="$wire.filterDrawer = ! $wire.filterDrawer" class="btn-ghost w-full" tooltip="Filters" />
