@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="corporate">
 
 <head>
     <meta charset="utf-8">
@@ -10,6 +10,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
+        /* Menyembunyikan scrollbar global (termasuk navbar/sidebar) */
+        * {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+
         /* Menyembunyikan garis waktu (progress bar) pada komponen Toast MaryUI */
         .toast progress { 
             display: none !important; 
@@ -28,23 +37,11 @@
 
 <body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200" x-data="{ sidebarCollapsed: {{ session('mary-sidebar-collapsed', 'false') }} }" @sidebar-toggled.window="sidebarCollapsed = $event.detail" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
 
-    {{-- NAVBAR (Mobile Only) --}}
-    <x-nav sticky class="lg:hidden bg-base-100/90 backdrop-blur-sm border-b border-base-200">
-        <x-slot:brand>
-            <label for="main-drawer" class="lg:hidden mr-3">
-                <x-icon name="o-bars-3" class="cursor-pointer" />
-            </label>
-            <a href="/dashboard" class="lg:hidden" wire:navigate>
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-6 w-auto" />
-            </a>
-        </x-slot:brand>
-    </x-nav>
+    @include('layouts.partials.mobile-nav')
 
     {{-- MAIN --}}
     <x-main full-width>
-        {{-- SIDEBAR --}}
         <x-slot:sidebar drawer="main-drawer" class="bg-base-100">
-
             {{-- BRAND & THEME TOGGLE --}}
             <div class="px-5 pt-4 mb-8 flex justify-between items-center">
                 <a href="/dashboard" class="mary-hideable" wire:navigate>
@@ -55,8 +52,6 @@
                     {{-- Desktop Collapse Button --}}
                     <x-button icon="o-bars-3-bottom-right" @click="toggle()" class="btn-circle btn-ghost btn-sm hidden lg:flex" />
                     
-                    {{-- Mobile Theme Toggle --}}
-                    <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm lg:hidden" />
                 </div>
             </div>
 
@@ -151,68 +146,25 @@
                 @endcan
                 <x-menu-item title="Meeting" icon="o-video-camera" link="/meeting" wire:navigate />
 
-                <x-menu-separator class="lg:hidden" />
+                <div class="lg:hidden">
+                    <x-menu-separator />
 
-                {{-- Profile (Mobile Only) --}}
-                <x-menu-item title="My Profile" icon="o-user-circle" link="/profile" class="lg:hidden" wire:navigate />
+                    {{-- Profile (Mobile Only) --}}
+                    <x-menu-item title="My Profile" icon="o-user-circle" link="/profile" wire:navigate />
+                </div>
 
             </x-menu>
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
         <x-slot:content class="lg:!px-6">
-            {{-- Desktop Top Header --}}
-            @if($user = auth()->user())
-                <div class="hidden lg:flex justify-between items-center gap-2 mb-4 pb-2 pt-4 -mt-4 sticky top-0 z-10 bg-gray-100/90 dark:bg-base-200/90 backdrop-blur-sm border-b border-base-content/10">
-                    
-                    {{-- Page Title (Left) --}}
-                    <div class="flex-1">
-                        <div class="text-2xl font-bold">{{ $title ?? 'Dashboard' }}</div>
-                        <div class="text-sm text-base-content/70">{{ now()->format('l, d F Y') }}</div>
-                    </div>
-
-                    {{-- Actions (Right) --}}
-                    <div class="flex items-center gap-2">
-                        <x-theme-toggle darkTheme="dim" lightTheme="corporate" class="btn btn-circle btn-ghost btn-sm mr-2" />
-                    
-                        <x-button class="btn-ghost normal-case flex items-center gap-2" link="/profile" wire:navigate>
-                            <x-icon name="o-user-circle" class="w-6 h-6" />
-                            <span class="font-medium">{{ $user->name }}</span>
-                        </x-button>
-                        
-                        <div class="divider divider-horizontal mx-0 my-2 w-0.5"></div>
-                        
-                        <x-button icon="o-power" class="btn-ghost text-error btn-circle btn-sm" tooltip-left="Logout" onclick="logout_modal.showModal()" />
-                    </div>
-                </div>
-            @endif
+            @include('layouts.partials.topbar')
 
             {{ $slot }}
         </x-slot:content>
     </x-main>
 
-    {{-- DaisyUI Logout Modal --}}
-    <dialog id="logout_modal" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Konfirmasi Keluar</h3>
-            <p class="py-4">Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem?</p>
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn btn-ghost">Batal</button>
-                </form>
-                <button class="btn btn-error text-white"
-                    onclick="document.getElementById('logout-form').submit()">Ya, Keluar</button>
-            </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
-
-    {{-- Hidden Logout Form --}}
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
+    @include('layouts.partials.logout-modal')
 
     {{-- TOAST area --}}
     <x-toast />
