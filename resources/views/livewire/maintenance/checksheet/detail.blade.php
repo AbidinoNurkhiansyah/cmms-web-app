@@ -28,6 +28,7 @@ new class extends Component {
     public string $currentPhotoPath = '';
 
     public string $filterMonth;
+    public string $docNo = '-';
 
     public function mount($assetNo)
     {
@@ -38,6 +39,15 @@ new class extends Component {
         $this->lineName = $asset->line_name;
         $this->machineName = $asset->machine_name;
         $this->picSL = auth()->user()->name ?? 'Unknown';
+
+        // Fetch DocNo
+        $doc = \Illuminate\Support\Facades\DB::table('cmms_cs_docnos')
+            ->where('asset_no', $assetNo)
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($doc) {
+            $this->docNo = $doc->doc_no;
+        }
 
         $this->items = ChecksheetItem::where('asset_no', $assetNo)
             ->where('is_active', true)
@@ -104,6 +114,34 @@ new class extends Component {
         $this->photoModal = true;
     }
 
+    public function toggleApproval($type, $day)
+    {
+        $month = Carbon::createFromFormat('Y-m', $this->filterMonth);
+        $date = $month->copy()->setDay($day)->toDateString();
+
+        $field = '';
+        if ($type === 'prod') $field = 'apv_prod';
+        if ($type === 'week') $field = 'apv_week';
+        if ($type === 'month') $field = 'apv_month';
+
+        if ($field) {
+            $transactions = Checksheet::where('asset_no', $this->assetNo)
+                ->where('date', $date)
+                ->get();
+            
+            if ($transactions->isNotEmpty()) {
+                $currentValue = $transactions->first()->$field;
+                Checksheet::where('asset_no', $this->assetNo)
+                    ->where('date', $date)
+                    ->update([$field => !$currentValue]);
+                    
+                $this->success("Approval berhasil diperbarui!");
+            } else {
+                $this->warning("Belum ada data pengecekan pada tanggal ini.");
+            }
+        }
+    }
+
     /**
      * Computed property: ambil history per bulan dengan satu query
      * Hasilnya adalah Map: [cs_item_id => [day => result]]
@@ -120,20 +158,34 @@ new class extends Component {
                 $month->startOfMonth()->toDateString(),
                 $month->copy()->endOfMonth()->toDateString(),
             ])
-            ->select('cs_item_id', 'date', 'result')
+            ->select('cs_item_id', 'date', 'result', 'apv_prod', 'apv_week', 'apv_month')
             ->get();
 
         // Kelompokkan: [item_id][day] = result
         $mapped = [];
+        $approvals = [];
+
         foreach ($rows as $row) {
             $day = Carbon::parse($row->date)->day;
             $mapped[$row->cs_item_id][$day] = $row->result;
+
+            if (!isset($approvals[$day])) {
+                $approvals[$day] = [
+                    'prod' => false,
+                    'week' => false,
+                    'month' => false,
+                ];
+            }
+            if ($row->apv_prod) $approvals[$day]['prod'] = true;
+            if ($row->apv_week) $approvals[$day]['week'] = true;
+            if ($row->apv_month) $approvals[$day]['month'] = true;
         }
 
         return [
             'daysInMonth' => $daysInMonth,
             'month'       => $month,
             'data'        => $mapped,
+            'approvals'   => $approvals,
         ];
     }
 

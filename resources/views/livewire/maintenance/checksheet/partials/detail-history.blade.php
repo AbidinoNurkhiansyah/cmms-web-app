@@ -13,8 +13,8 @@
             <x-input type="month" wire:model.live="filterMonth" class="input-sm w-48" />
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="table table-xs table-bordered text-center">
+        <div class="overflow-x-auto w-full max-w-full">
+            <table class="table table-xs table-bordered text-center w-full">
                 <thead>
                     <tr class="bg-base-300">
                         <th class="text-left min-w-40 sticky left-0 bg-base-300 z-10">Point Check</th>
@@ -83,6 +83,50 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot class="bg-base-200">
+                    <tr class="font-bold text-info">
+                        <td class="text-left sticky left-0 bg-base-200 z-10 border-r">Approval Prod</td>
+                        @for($d = 1; $d <= $daysInMonth; $d++)
+                            @php
+                                $val = $history['approvals'][$d]['prod'] ?? false;
+                                $bgClass = ($isCurrentMonth && $d === $today) ? 'bg-primary/10' : '';
+                            @endphp
+                            <td class="{{ $bgClass }} cursor-pointer hover:bg-base-300" wire:click="toggleApproval('prod', {{ $d }})">
+                                @if($val)
+                                    <span class="text-success text-lg">✓</span>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                    <tr class="font-bold text-info">
+                        <td class="text-left sticky left-0 bg-base-200 z-10 border-r">Approval STL Prod</td>
+                        @for($d = 1; $d <= $daysInMonth; $d++)
+                            @php
+                                $val = $history['approvals'][$d]['week'] ?? false;
+                                $bgClass = ($isCurrentMonth && $d === $today) ? 'bg-primary/10' : '';
+                            @endphp
+                            <td class="{{ $bgClass }} cursor-pointer hover:bg-base-300" wire:click="toggleApproval('week', {{ $d }})">
+                                @if($val)
+                                    <span class="text-success text-lg">✓</span>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                    <tr class="font-bold text-info border-b-2">
+                        <td class="text-left sticky left-0 bg-base-200 z-10 border-r">Approval STL MTC</td>
+                        @for($d = 1; $d <= $daysInMonth; $d++)
+                            @php
+                                $val = $history['approvals'][$d]['month'] ?? false;
+                                $bgClass = ($isCurrentMonth && $d === $today) ? 'bg-primary/10' : '';
+                            @endphp
+                            <td class="{{ $bgClass }} cursor-pointer hover:bg-base-300" wire:click="toggleApproval('month', {{ $d }})">
+                                @if($val)
+                                    <span class="text-success text-lg">✓</span>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
