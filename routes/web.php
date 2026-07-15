@@ -46,7 +46,7 @@ Route::middleware('auth')->group(function () {
 
     // Checksheet
     Volt::route('/maintenance/checksheet', 'maintenance.checksheet.index')->name('maintenance.checksheet.index');
-    Volt::route('/maintenance/checksheet-monitoring', 'maintenance.checksheet.monitoring')->name('maintenance.checksheet.monitoring');
+    Volt::route('/maintenance/checksheet-monitoring', 'maintenance.checksheet-monitoring.index')->name('maintenance.checksheet.monitoring');
     Volt::route('/maintenance/checksheet/{assetNo}', 'maintenance.checksheet.detail')->name('maintenance.checksheet.detail');
     Volt::route('/checksheet/master', 'master-data.checksheet.index')->name('checksheet.master');
 
