@@ -21,12 +21,12 @@
                                     <span class="font-semibold">{{ $item->item_check }}</span>
                                     <x-badge value="{{ $item->periode }}" class="badge-sm badge-neutral" />
                                     @if($item->photo_path)
-                                        <x-button icon="o-photo" class="btn-circle btn-xs btn-info" tooltip="View Photo" wire:click.prevent="viewPhoto('{{ addslashes($item->item_check) }}', '{{ $item->photo_path }}')" />
+                                        <x-button icon="o-photo" class="btn-circle btn-xs btn-info" tooltip="View Photo" wire:click.prevent="viewPhoto('{{ addslashes(str_replace(["\r", "\n"], ' ', $item->item_check)) }}', '{{ $item->photo_path }}')" />
                                     @endif
                                 </div>
                                 <div class="text-xs opacity-75 flex flex-col md:flex-row md:gap-6 mt-2 md:mt-1">
                                     <div><span class="font-semibold">Std:</span> <span class="text-success">{{ $item->standard }}</span></div>
-                                    <div class="mt-1 md:mt-0"><span class="font-semibold">Method:</span> <span class="text-warning">{{ $item->method }}</span></div>
+                                    <div class="mt-1 md:mt-0"><span class="font-semibold">Method:</span> <span class="text-info">{{ $item->method }}</span></div>
                                 </div>
                             </div>
 

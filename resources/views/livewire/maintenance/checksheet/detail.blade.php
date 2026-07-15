@@ -145,16 +145,16 @@ new class extends Component {
     {
         if (empty($std)) return null;
 
-        // Normalisasi input: ganti koma ke titik, trim
-        $val = str_replace(',', '.', trim($val));
+        // Normalisasi input: ganti koma ke titik, hapus semua whitespace (spasi, enter, tab)
+        $val = preg_replace('/\s+/', '', str_replace(',', '.', $val));
         if (!is_numeric($val)) return null;
         $v = (float) $val;
 
-        // Normalisasi standar: lowercase, ganti koma ke titik, hapus spasi
-        $std = strtolower(str_replace([' ', ','], ['', '.'], $std));
+        // Normalisasi standar: lowercase, ganti koma ke titik, hapus semua whitespace
+        $std = strtolower(preg_replace('/\s+/', '', str_replace(',', '.', $std)));
 
         // Hapus satuan di akhir: mpa, mm, sec, kg, %, rpm, dll
-        $std = preg_replace('/[a-z]+[a-z0-9\/]*$/i', '', $std);
+        $std = preg_replace('/[a-z%]+[a-z0-9\/\°]*$/i', '', $std);
         $std = rtrim($std, '.-');
 
         // Exact numeric
