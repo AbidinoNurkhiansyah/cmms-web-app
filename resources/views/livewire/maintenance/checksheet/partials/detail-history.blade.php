@@ -7,13 +7,13 @@
         $today = \Illuminate\Support\Carbon::today()->day;
         $isCurrentMonth = $historyMonth->isSameMonth(\Illuminate\Support\Carbon::now());
     @endphp
-    <x-card class="mb-6">
+    <x-card class="mb-6 overflow-hidden w-full min-w-0">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <h3 class="text-xl font-bold">Monthly History</h3>
             <x-input type="month" wire:model.live="filterMonth" class="input-sm w-48" />
         </div>
 
-        <div class="overflow-x-auto w-full max-w-full">
+        <div class="overflow-x-auto w-full">
             <table class="table table-xs table-bordered text-center w-full">
                 <thead>
                     <tr class="bg-base-300">

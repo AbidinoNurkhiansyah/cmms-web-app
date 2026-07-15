@@ -1,4 +1,4 @@
-<x-card class="mb-6">
+<x-card class="mb-6 overflow-hidden w-full min-w-0">
     <h3 class="text-xl font-bold mb-4">Checksheet Items</h3>
     
     @if($items->isEmpty())

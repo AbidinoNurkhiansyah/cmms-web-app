@@ -243,7 +243,7 @@ new class extends Component {
 };
 ?>
 
-<div>
+<div class="w-full min-w-0 max-w-full">
     @include('livewire.maintenance.checksheet.partials.detail-header')
 
     <div x-data="{ activeTab: 'form' }">

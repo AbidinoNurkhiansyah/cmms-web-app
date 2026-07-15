@@ -1,4 +1,4 @@
-<div class="overflow-x-auto w-full max-w-full max-h-[75vh]" x-data x-init="$nextTick(() => { 
+<div class="overflow-x-auto w-full max-h-[75vh]" x-data x-init="$nextTick(() => { 
     let el = document.getElementById('today-col'); 
     if(el) {
         // scrollBy a bit to center or just scrollIntoView

@@ -35,7 +35,7 @@
     </style>
 </head>
 
-<body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200" x-data="{ sidebarCollapsed: {{ session('mary-sidebar-collapsed', 'false') }} }" @sidebar-toggled.window="sidebarCollapsed = $event.detail" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+<body class="min-h-screen font-sans antialiased bg-gray-100 dark:bg-base-200 overflow-x-hidden" x-data="{ sidebarCollapsed: {{ session('mary-sidebar-collapsed', 'false') }} }" @sidebar-toggled.window="sidebarCollapsed = $event.detail" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
 
     @include('layouts.partials.mobile-nav')
 
@@ -157,7 +157,7 @@
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
-        <x-slot:content class="lg:!px-6">
+        <x-slot:content class="lg:!px-6 overflow-x-hidden">
             @include('layouts.partials.topbar')
 
             {{ $slot }}
