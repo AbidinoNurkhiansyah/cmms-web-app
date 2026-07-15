@@ -8,24 +8,22 @@
             <div class="text-sm font-medium text-base-content/70 mb-1">Foto Bukti / Standar</div>
 
             {{-- Preview Area --}}
-            <div x-data="{ preview: null }"
-                 @change="
-                    const file = $event.target.files[0];
-                    if (file) preview = URL.createObjectURL(file);
-                 ">
-
+            <div>
                 {{-- Preview image --}}
                 <div class="w-full h-48 rounded-xl border-2 border-dashed border-base-300 bg-base-200
                             flex items-center justify-center overflow-hidden mb-3">
-                    <template x-if="preview">
-                        <img :src="preview" class="w-full h-full object-cover rounded-xl" alt="Preview" />
-                    </template>
-                    <template x-if="!preview">
+                    @if($addPhoto)
+                        <img src="{{ $addPhoto->temporaryUrl() }}" class="w-full h-full object-cover rounded-xl" alt="Preview" />
+                    @else
                         <div class="flex flex-col items-center gap-2 text-base-content/30 p-4 text-center">
                             <x-icon name="o-photo" class="w-10 h-10" />
                             <span class="text-xs">Foto akan ditampilkan di sini</span>
                         </div>
-                    </template>
+                    @endif
+                </div>
+
+                <div wire:loading wire:target="addPhoto" class="text-xs text-info text-center mb-2 w-full">
+                    Uploading...
                 </div>
 
                 {{-- File input --}}
