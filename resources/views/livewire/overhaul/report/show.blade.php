@@ -8,9 +8,9 @@ new class extends Component {
     public string $selectedTab = 'general-tab';
     
     // Additional PIC names
-    public string $pic1Name = '';
-    public string $pic2Name = '';
-    public string $pic3Name = '';
+    public ?string $pic1Name = '';
+    public ?string $pic2Name = '';
+    public ?string $pic3Name = '';
 
     public function mount(int $id)
     {
@@ -21,11 +21,11 @@ new class extends Component {
         $this->pic3Name = $this->getPicName($this->record->pic3);
     }
     
-    private function getPicName(?string $jid)
+    private function getPicName(?string $jid): string
     {
         if (!$jid) return '-';
         $user = \App\Models\User::where('jid_no', $jid)->first();
-        return $user ? $user->repair : '-';
+        return $user?->name ?? '-';
     }
 };
 ?>
