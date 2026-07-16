@@ -54,7 +54,7 @@ class WorkOrderSeeder extends Seeder
                 'problem_description' => $faker->sentence(8),
                 'status' => $status,
                 'priority' => $faker->randomElement($priorities),
-                'pic' => $faker->numberBetween(1000, 9999),
+                'pic' => $faker->randomElement(['TPM-OH-SM', 'MAINTENANCE', 'TPM-OH', 'MAINTENANCE A', 'MAINTENANCE B', 'TPM', 'OH', 'ADMIN', 'SUB MATERIAL', 'Repair']),
                 'confirmation_note' => $isCompleted ? $faker->sentence(5) : null,
                 'actual_date' => $actualDate ? $actualDate->format('Y-m-d') : null,
             ]);
