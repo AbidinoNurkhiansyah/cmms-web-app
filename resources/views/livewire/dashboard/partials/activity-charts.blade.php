@@ -8,7 +8,7 @@
         <div class="card-body p-5">
             <div class="flex items-center justify-between mb-4">
                 <h6 class="font-bold text-sm">Deep Cleaning</h6>
-                <div class="w-2 h-2 rounded-full bg-success"></div>
+                <div class="w-2 h-2 rounded-full bg-[#E30701]"></div>
             </div>
             <canvas id="tpmChart" class="w-full" style="max-height:200px"></canvas>
         </div>
@@ -18,7 +18,7 @@
         <div class="card-body p-5">
             <div class="flex items-center justify-between mb-4">
                 <h6 class="font-bold text-sm">Cardty</h6>
-                <div class="w-2 h-2 rounded-full bg-error"></div>
+                <div class="w-2 h-2 rounded-full bg-[#E30701]"></div>
             </div>
             <canvas id="cartyChart" class="w-full" style="max-height:200px"></canvas>
         </div>
@@ -28,7 +28,7 @@
         <div class="card-body p-5">
             <div class="flex items-center justify-between mb-4">
                 <h6 class="font-bold text-sm">Overhaul</h6>
-                <div class="w-2 h-2 rounded-full bg-info"></div>
+                <div class="w-2 h-2 rounded-full bg-[#E30701]"></div>
             </div>
             <canvas id="ohChart" class="w-full" style="max-height:200px"></canvas>
         </div>
@@ -38,7 +38,7 @@
         <div class="card-body p-5">
             <div class="flex items-center justify-between mb-4">
                 <h6 class="font-bold text-sm">Work Orders</h6>
-                <div class="w-2 h-2 rounded-full bg-warning"></div>
+                <div class="w-2 h-2 rounded-full bg-[#E30701]"></div>
             </div>
             <canvas id="woChart" class="w-full" style="max-height:200px"></canvas>
         </div>
@@ -48,11 +48,11 @@
 
 @script
 <script>
-    const labels  = @json($labels);
-    const tpmData  = @json($tpmData);
+    const labels = @json($labels);
+    const tpmData = @json($tpmData);
     const cartyData = @json($cartyData);
-    const ohData   = @json($ohData);
-    const woData   = @json($woData);
+    const ohData = @json($ohData);
+    const woData = @json($woData);
 
     function makeChart(id, data, color) {
         const ctx = document.getElementById(id);
@@ -72,13 +72,13 @@
             options: {
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        beginAtZero: true, 
+                    y: {
+                        beginAtZero: true,
                         ticks: { precision: 0, color: '#9ca3af' },
                         border: { display: false },
                         grid: { color: '#37415140' } // very subtle grid line
                     },
-                    x: { 
+                    x: {
                         grid: { display: false },
                         ticks: { color: '#9ca3af' },
                         border: { display: false }
@@ -88,9 +88,9 @@
         });
     }
 
-    makeChart('tpmChart',   tpmData,   '#22c55e');
-    makeChart('cartyChart', cartyData, '#ef4444');
-    makeChart('ohChart',    ohData,    '#3b82f6');
-    makeChart('woChart',    woData,    '#f59e0b');
+    makeChart('tpmChart', tpmData, '#E30701');
+    makeChart('cartyChart', cartyData, '#E30701');
+    makeChart('ohChart', ohData, '#E30701');
+    makeChart('woChart', woData, '#E30701');
 </script>
 @endscript
