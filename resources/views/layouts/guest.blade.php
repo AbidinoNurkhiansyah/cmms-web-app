@@ -9,5 +9,7 @@
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50" data-theme="corporate">
     {{ $slot }}
+
+    <x-toast />
 </body>
 </html>

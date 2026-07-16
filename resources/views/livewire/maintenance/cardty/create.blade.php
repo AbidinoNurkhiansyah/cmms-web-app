@@ -35,16 +35,33 @@ new class extends Component {
     public $fileafter1;
     public $fileafter2;
 
+    public function layout()
+    {
+        return auth()->check() ? 'layouts.app' : 'layouts.guest';
+    }
+
     public function mount(): void
     {
-        abort_if(\Illuminate\Support\Facades\Gate::denies('wr.create'), 403, 'Unauthorized');
-
         $this->Date = date('Y-m-d');
         $this->Status = 'Temporary';
+
+        $asset_id = request()->query('asset_id');
+        if ($asset_id) {
+            $asset = Asset::find($asset_id);
+            if ($asset) {
+                $this->LineName = $asset->line_name ?? '';
+                $this->MachineNo = $asset->asset_no ?? '';
+            }
+        }
 
         $this->mountWithAssetSelection();
         $this->mountWithSpareparts();
         $this->mountWithPersonnel();
+
+        if ($asset_id) {
+            $this->asset_id = $asset_id;
+            $this->updatedAssetId($asset_id);
+        }
 
         // Initialize empty pics array if needed
         if (empty($this->pics)) {
@@ -99,7 +116,15 @@ new class extends Component {
         $service->create($data);
 
         $this->success('Carty Record Created.');
-        return redirect()->route('maintenance.cardty');
+        
+        if (auth()->check()) {
+            return redirect()->route('maintenance.cardty');
+        } else {
+            // Jika discan via QR oleh operator guest
+            $this->reset(['Problem', 'Action', 'DownTime', 'start_time', 'finish_time', 'pics']);
+            $this->pics = [''];
+            return;
+        }
     }
 };
 ?>

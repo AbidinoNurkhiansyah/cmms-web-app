@@ -12,6 +12,9 @@ Route::post('/logout', function (\Illuminate\Http\Request $request) {
     return redirect('/login');
 })->name('logout');
 
+// ----- Public Routes -----
+Volt::route('/maintenance/cardty/create', 'maintenance.cardty.create')->name('maintenance.cardty.create');
+
 // ----- Protected routes -----
 Route::middleware('auth')->group(function () {
 
@@ -40,7 +43,6 @@ Route::middleware('auth')->group(function () {
 
     // Maintenance - Cardty
     Volt::route('/maintenance/cardty', 'maintenance.cardty.index')->name('maintenance.cardty');
-    Volt::route('/maintenance/cardty/create', 'maintenance.cardty.create')->name('maintenance.cardty.create');
     Volt::route('/maintenance/cardty/{id}/edit', 'maintenance.cardty.edit')->name('maintenance.cardty.edit');
     Volt::route('/maintenance/cardty/{id}', 'maintenance.cardty.show')->name('maintenance.cardty.show');
 
