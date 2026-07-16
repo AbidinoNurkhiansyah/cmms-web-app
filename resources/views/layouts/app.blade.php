@@ -8,6 +8,9 @@
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <style>
         /* Menyembunyikan scrollbar global (termasuk navbar/sidebar) */
@@ -157,7 +160,7 @@
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}
-        <x-slot:content class="lg:!px-6 overflow-x-hidden">
+        <x-slot:content class="lg:!px-6">
             @include('layouts.partials.topbar')
 
             {{ $slot }}
