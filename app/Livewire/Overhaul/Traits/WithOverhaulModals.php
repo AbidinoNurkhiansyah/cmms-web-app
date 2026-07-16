@@ -45,6 +45,9 @@ trait WithOverhaulModals
     // Relational Arrays
     public array $steps = [];
     public array $oh_spareparts = [];
+    public array $usersList = [];
+    public array $usersList1 = [];
+    public array $usersList2 = [];
 
     public function mountWithOverhaulModals()
     {
@@ -53,6 +56,30 @@ trait WithOverhaulModals
         $this->addStep();
         $this->addOhSparepart();
         $this->mountWithAssetSelection();
+        $this->searchUser();
+        $this->searchUser1();
+        $this->searchUser2();
+    }
+
+    public function searchUser(string $value = '')
+    {
+        $query = \App\Models\User::orderBy('name');
+        if (!empty($value)) $query->where('name', 'like', "%{$value}%");
+        $this->usersList = $query->get()->map(fn($u) => ['id' => $u->jid_no, 'name' => $u->name])->toArray();
+    }
+
+    public function searchUser1(string $value = '')
+    {
+        $query = \App\Models\User::orderBy('name');
+        if (!empty($value)) $query->where('name', 'like', "%{$value}%");
+        $this->usersList1 = $query->get()->map(fn($u) => ['id' => $u->jid_no, 'name' => $u->name])->toArray();
+    }
+
+    public function searchUser2(string $value = '')
+    {
+        $query = \App\Models\User::orderBy('name');
+        if (!empty($value)) $query->where('name', 'like', "%{$value}%");
+        $this->usersList2 = $query->get()->map(fn($u) => ['id' => $u->jid_no, 'name' => $u->name])->toArray();
     }
 
     public function addStep()
@@ -99,6 +126,11 @@ trait WithOverhaulModals
         }
     }
 
+    public function updatedPIC() { $this->calculateTime(); }
+    public function updatedPic1() { $this->calculateTime(); }
+    public function updatedPic2() { $this->calculateTime(); }
+    public function updatedPic3() { $this->calculateTime(); }
+
     public function resetForm()
     {
         $this->reset([
@@ -132,9 +164,9 @@ trait WithOverhaulModals
         $this->calculateTime();
 
         $data = [
-            'date' => $this->date,
-            'start_time' => $this->start_time,
-            'end_time' => $this->end_time,
+            'date' => empty($this->date) ? null : $this->date,
+            'start_time' => empty($this->start_time) ? null : $this->start_time,
+            'end_time' => empty($this->end_time) ? null : $this->end_time,
             'LineName' => $this->LineName,
             'MachineNo' => $this->MachineNo,
             'MachineName' => $this->MachineName,
@@ -229,9 +261,9 @@ trait WithOverhaulModals
         $this->calculateTime();
 
         $data = [
-            'date' => $this->date,
-            'start_time' => $this->start_time,
-            'end_time' => $this->end_time,
+            'date' => empty($this->date) ? null : $this->date,
+            'start_time' => empty($this->start_time) ? null : $this->start_time,
+            'end_time' => empty($this->end_time) ? null : $this->end_time,
             'LineName' => $this->LineName,
             'MachineNo' => $this->MachineNo,
             'MachineName' => $this->MachineName,

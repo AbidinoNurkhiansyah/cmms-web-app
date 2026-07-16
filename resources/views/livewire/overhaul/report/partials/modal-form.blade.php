@@ -1,5 +1,5 @@
 @php
-    $users = \App\Models\User::whereNotNull('repair')->orderBy('repair')->get()->map(fn($u) => ['id' => $u->jid_no, 'name' => $u->repair]);
+    $users = \App\Models\User::orderBy('name')->get()->map(fn($u) => ['id' => $u->jid_no, 'name' => $u->name]);
     $usersSelect = [['id' => '', 'name' => 'Select PIC']] + $users->toArray();
     $statuses = [['id'=>'Open','name'=>'Open'],['id'=>'Planned','name'=>'Planned'],['id'=>'In Progress','name'=>'In Progress'],['id'=>'Done','name'=>'Done']];
 @endphp
@@ -7,29 +7,44 @@
 {{-- ADD MODAL --}}
 <x-modal wire:model="addModal" title="New Overhaul Report" separator class="backdrop-blur-sm" box-class="w-11/12 max-w-5xl max-h-[85vh] overflow-y-auto">
     <x-form wire:submit.prevent="saveAdd" no-separator>
-        <x-tabs selected="tab-utama">
+        <div x-data="{ tab: 'utama' }">
+            <div class="w-full flex overflow-x-auto border-b border-base-content/10 mb-4 rounded-lg bg-base-200/30 p-1 gap-1">
+                <button type="button" @click.prevent="tab = 'utama'" :class="tab === 'utama' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-document-text" class="w-5 h-5" />
+                    <span class="hidden sm:block">Data Utama</span>
+                </button>
+                <button type="button" @click.prevent="tab = 'action'" :class="tab === 'action' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-wrench-screwdriver" class="w-5 h-5" />
+                    <span class="hidden sm:block">Problem & Action</span>
+                </button>
+                <button type="button" @click.prevent="tab = 'dokumentasi'" :class="tab === 'dokumentasi' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-photo" class="w-5 h-5" />
+                    <span class="hidden sm:block">Dokumentasi</span>
+                </button>
+            </div>
+
             {{-- TAB UTAMA --}}
-            <x-tab name="tab-utama" label="Data Utama" icon="o-document-text">
+            <div x-show="tab === 'utama'" x-cloak x-transition>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <x-input label="Date" type="date" wire:model="date" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" required />
                     <x-input label="Start Time" type="datetime-local" wire:model="start_time" wire:change="calculateTime" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" />
                     <x-input label="Finish Time" type="datetime-local" wire:model="end_time" wire:change="calculateTime" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" />
                     
-                    <x-choices label="Line Name" wire:model.live="LineName" :options="$lineNames" option-value="name" option-label="name" single searchable required />
-                    <x-choices label="Machine Name" wire:model.live="asset_id" :options="$machines" option-value="id" option-label="machine_name" single searchable required />
+                    <x-choices label="Line Name" wire:model.live="LineName" :options="$lineNames" option-value="name" option-label="name" search-function="searchLine" single searchable clearable required />
+                    <x-choices label="Machine Name" wire:model.live="asset_id" :options="$machines" option-value="id" option-label="machine_name" search-function="searchMachine" single searchable clearable required />
                     <x-input label="Asset No" wire:model="MachineNo" readonly />
                     
-                    <x-select label="PIC 1" wire:model="PIC" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
-                    <x-select label="PIC 2" wire:model="pic1" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
-                    <x-select label="PIC 3" wire:model="pic2" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
+                    <x-choices label="PIC 1" wire:model.live="PIC" :options="$usersList" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser" single searchable clearable />
+                    <x-choices label="PIC 2" wire:model.live="pic1" :options="$usersList1" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser1" single searchable clearable />
+                    <x-choices label="PIC 3" wire:model.live="pic2" :options="$usersList2" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser2" single searchable clearable />
                     
                     <x-input label="Repair Time (Mins)" type="number" wire:model="repair_time" readonly />
                     <x-input label="Work Time" type="number" wire:model="work_time" readonly />
                 </div>
-            </x-tab>
+            </div>
 
             {{-- TAB PROBLEM & ACTION --}}
-            <x-tab name="tab-action" label="Problem & Action" icon="o-wrench-screwdriver">
+            <div x-show="tab === 'action'" x-cloak x-transition>
                 <div class="mb-4">
                     <x-textarea label="Problem" wire:model="problem" rows="2" />
                 </div>
@@ -91,10 +106,10 @@
                         <x-button label="Add Spare Part" icon="o-plus" class="btn-sm btn-outline" wire:click="addOhSparepart" spinner />
                     </div>
                 </div>
-            </x-tab>
+            </div>
 
             {{-- TAB DOKUMENTASI --}}
-            <x-tab name="tab-dokumentasi" label="Dokumentasi" icon="o-photo">
+            <div x-show="tab === 'dokumentasi'" x-cloak x-transition>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <x-textarea label="Explanation" wire:model="explanation" rows="2" />
                     <x-textarea label="Next Improvement" wire:model="next_improvement" rows="2" />
@@ -127,8 +142,8 @@
                         @endif
                     </div>
                 </div>
-            </x-tab>
-        </x-tabs>
+            </div>
+        </div>
         
         <x-slot:actions>
             <x-button label="Cancel" class="btn-ghost" @click="$wire.addModal = false" />
@@ -141,29 +156,44 @@
 {{-- EDIT MODAL --}}
 <x-modal wire:model="editModal" title="Edit Overhaul Report" separator class="backdrop-blur-sm" box-class="w-11/12 max-w-5xl max-h-[85vh] overflow-y-auto">
     <x-form wire:submit.prevent="saveEdit" no-separator>
-        <x-tabs selected="tab-utama-edit">
+        <div x-data="{ tab: 'utama' }">
+            <div class="w-full flex overflow-x-auto border-b border-base-content/10 mb-4 rounded-lg bg-base-200/30 p-1 gap-1">
+                <button type="button" @click.prevent="tab = 'utama'" :class="tab === 'utama' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-document-text" class="w-5 h-5" />
+                    <span class="hidden sm:block">Data Utama</span>
+                </button>
+                <button type="button" @click.prevent="tab = 'action'" :class="tab === 'action' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-wrench-screwdriver" class="w-5 h-5" />
+                    <span class="hidden sm:block">Problem & Action</span>
+                </button>
+                <button type="button" @click.prevent="tab = 'dokumentasi'" :class="tab === 'dokumentasi' ? 'bg-neutral text-neutral-content shadow-sm' : 'hover:bg-base-200/50 text-base-content/70'" class="flex-1 text-center font-bold py-2.5 rounded-md transition-all cursor-pointer flex justify-center items-center gap-2">
+                    <x-icon name="o-photo" class="w-5 h-5" />
+                    <span class="hidden sm:block">Dokumentasi</span>
+                </button>
+            </div>
+
             {{-- TAB UTAMA --}}
-            <x-tab name="tab-utama-edit" label="Data Utama" icon="o-document-text">
+            <div x-show="tab === 'utama'" x-cloak x-transition>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <x-input label="Date" type="date" wire:model="date" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" required />
                     <x-input label="Start Time" type="datetime-local" wire:model="start_time" wire:change="calculateTime" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" />
                     <x-input label="Finish Time" type="datetime-local" wire:model="end_time" wire:change="calculateTime" class="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4" />
                     
-                    <x-choices label="Line Name" wire:model.live="LineName" :options="$lineNames" option-value="name" option-label="name" single searchable required />
-                    <x-choices label="Machine Name" wire:model.live="asset_id" :options="$machines" option-value="id" option-label="machine_name" single searchable required />
+                    <x-choices label="Line Name" wire:model.live="LineName" :options="$lineNames" option-value="name" option-label="name" search-function="searchLine" single searchable clearable required />
+                    <x-choices label="Machine Name" wire:model.live="asset_id" :options="$machines" option-value="id" option-label="machine_name" search-function="searchMachine" single searchable clearable required />
                     <x-input label="Asset No" wire:model="MachineNo" readonly />
                     
-                    <x-select label="PIC 1" wire:model="PIC" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
-                    <x-select label="PIC 2" wire:model="pic1" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
-                    <x-select label="PIC 3" wire:model="pic2" wire:change="calculateTime" :options="$usersSelect" option-value="id" option-label="name" />
+                    <x-choices label="PIC 1" wire:model.live="PIC" :options="$usersList" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser" single searchable clearable />
+                    <x-choices label="PIC 2" wire:model.live="pic1" :options="$usersList1" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser1" single searchable clearable />
+                    <x-choices label="PIC 3" wire:model.live="pic2" :options="$usersList2" option-value="id" option-label="name" placeholder="Select PIC" search-function="searchUser2" single searchable clearable />
                     
                     <x-input label="Repair Time (Mins)" type="number" wire:model="repair_time" readonly />
                     <x-input label="Work Time" type="number" wire:model="work_time" readonly />
                 </div>
-            </x-tab>
+            </div>
 
             {{-- TAB PROBLEM & ACTION --}}
-            <x-tab name="tab-action-edit" label="Problem & Action" icon="o-wrench-screwdriver">
+            <div x-show="tab === 'action'" x-cloak x-transition>
                 <div class="mb-4">
                     <x-textarea label="Problem" wire:model="problem" rows="2" />
                 </div>
@@ -225,10 +255,10 @@
                         <x-button label="Add Spare Part" icon="o-plus" class="btn-sm btn-outline" wire:click="addOhSparepart" spinner />
                     </div>
                 </div>
-            </x-tab>
+            </div>
 
             {{-- TAB DOKUMENTASI --}}
-            <x-tab name="tab-dokumentasi-edit" label="Dokumentasi" icon="o-photo">
+            <div x-show="tab === 'dokumentasi'" x-cloak x-transition>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <x-textarea label="Explanation" wire:model="explanation" rows="2" />
                     <x-textarea label="Next Improvement" wire:model="next_improvement" rows="2" />
@@ -269,8 +299,8 @@
                         @endif
                     </div>
                 </div>
-            </x-tab>
-        </x-tabs>
+            </div>
+        </div>
         
         <x-slot:actions>
             <x-button label="Cancel" class="btn-ghost" @click="$wire.editModal = false" />
