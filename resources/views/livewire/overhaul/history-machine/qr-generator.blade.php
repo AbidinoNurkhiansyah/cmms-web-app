@@ -71,7 +71,7 @@ new #[Layout('layouts.app')] class extends Component {
 
     <div class="text-sm text-base-content/70">
         <p>Pilih asset-asset di bawah ini untuk mencetak QR Code secara bersamaan. Link QR Code akan diarahkan ke riwayat mesin sesuai server aktif saat ini.</p>
-        <p class="mt-1"><strong>Format URL Target:</strong> <code class="bg-base-200 px-1 py-0.5 rounded text-primary">{{ url('/overhaul/history-machine?filter_asset_id={ASSET_ID}') }}</code></p>
+        <p class="mt-1"><strong>Format URL Target:</strong> <code class="bg-base-200 px-1 py-0.5 rounded text-primary">{{ url('/maintenance/cardty/create?asset_id={ASSET_ID}') }}</code></p>
     </div>
 
     <div class="flex flex-col sm:flex-row justify-between gap-4 bg-base-200/50 p-4 rounded-lg items-center border border-base-200">

@@ -46,7 +46,7 @@ new #[Layout('layouts.guest')] class extends Component {
                             {{ $asset->asset_no }}
                         </div>
                         <div class="bg-white p-2 flex justify-center w-full">
-                            {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(250)->generate(url('/overhaul/history-machine?filter_asset_id=' . $asset->id)) !!}
+                            {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(250)->generate(url('/maintenance/cardty/create?asset_id=' . $asset->id)) !!}
                         </div>
                         <div class="truncate w-full font-semibold text-lg mt-6" title="{{ $asset->machine_name }}">
                             {{ $asset->machine_name }}
@@ -66,7 +66,7 @@ new #[Layout('layouts.guest')] class extends Component {
                                 {{ $asset->asset_no }}
                             </div>
                             <div class="bg-white p-2 flex justify-center w-full">
-                                {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->generate(url('/overhaul/history-machine?filter_asset_id=' . $asset->id)) !!}
+                                {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->generate(url('/maintenance/cardty/create?asset_id=' . $asset->id)) !!}
                             </div>
                             <div class="truncate w-full font-semibold text-xs mt-3" title="{{ $asset->machine_name }}">
                                 {{ $asset->machine_name }}
