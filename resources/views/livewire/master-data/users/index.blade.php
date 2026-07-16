@@ -20,9 +20,10 @@ new class extends Component {
     public ?int $editId = null;
     public string $editName = '';
     public string $editJidNo = '';
-    public string $editPosition = '';
-    public string $editTeam = '';
-    public string $editJobdesc = '';
+    public ?string $editPosition = '';
+    public ?string $editTeam = '';
+    public ?string $editJobdesc = '';
+    public ?string $editRole = '';
     public $editPhoto;
     public string $currentPhoto = '';
 
@@ -30,9 +31,10 @@ new class extends Component {
     public bool $addModal = false;
     public string $addName = '';
     public string $addJidNo = '';
-    public string $addPosition = '';
-    public string $addTeam = '';
-    public string $addJobdesc = '';
+    public ?string $addPosition = '';
+    public ?string $addTeam = '';
+    public ?string $addJobdesc = '';
+    public ?string $addRole = '';
     public $addPhoto;
 
     public function updatedSearch(): void
@@ -63,11 +65,14 @@ new class extends Component {
         $dbTeams = \App\Models\User::select('team')->distinct()->pluck('team')->filter()->toArray();
         $teamOptions = collect(array_unique(array_merge($legacyTeams, $dbTeams)))->sort()->map(fn($v) => ['id' => $v, 'name' => $v])->values()->toArray();
 
+        $roleOptions = \Spatie\Permission\Models\Role::all()->map(fn($role) => ['id' => $role->name, 'name' => str_replace('Maintenance', 'MTC', ucfirst(str_replace('_', ' ', $role->name)))])->toArray();
+
         return [
             'users' => $userService->getPaginatedUsers(25, $this->search),
             'unitOptions' => $unitOptions,
             'positionOptions' => $positionOptions,
             'teamOptions' => $teamOptions,
+            'roleOptions' => $roleOptions,
         ];
     }
 
@@ -80,6 +85,7 @@ new class extends Component {
         $this->editPosition = $user->position ?? '';
         $this->editTeam = $user->team ?? '';
         $this->editJobdesc = $user->jobdesc ?? '';
+        $this->editRole = $user->roles->first()?->name ?? '';
         $this->currentPhoto = $user->photo ?? '';
         $this->editPhoto = null;
         $this->editModal = true;
@@ -105,7 +111,15 @@ new class extends Component {
             $data['photo'] = $this->editPhoto->store('users', 'public');
         }
 
-        $userService->updateUser($this->editId, $data);
+        $user = $userService->updateUser($this->editId, $data);
+        
+        // Sync Roles
+        if ($this->editRole) {
+            $user->syncRoles([$this->editRole]);
+        } else {
+            $user->syncRoles([]);
+        }
+
         $this->editModal = false;
         $this->success('User updated successfully.');
     }
@@ -119,7 +133,7 @@ new class extends Component {
 
     public function openAdd(): void
     {
-        $this->reset(['addName', 'addJidNo', 'addPosition', 'addTeam', 'addJobdesc', 'addPhoto']);
+        $this->reset(['addName', 'addJidNo', 'addPosition', 'addTeam', 'addJobdesc', 'addPhoto', 'addRole']);
         $this->addModal = true;
     }
 
@@ -145,7 +159,11 @@ new class extends Component {
             $data['photo'] = $this->addPhoto->store('users', 'public');
         }
 
-        $userService->createUser($data);
+        $user = $userService->createUser($data);
+        
+        if ($this->addRole) {
+            $user->assignRole($this->addRole);
+        }
 
         $this->addModal = false;
         $this->success('User created successfully.');
@@ -169,13 +187,12 @@ new class extends Component {
             <x-input placeholder="Search name, JID, username..." wire:model.live.debounce.300ms="search" clearable
                 icon="o-magnifying-glass" />
         </x-slot:middle>
+        <x-slot:actions>
+            @if(auth()->user()?->is_admin)
+                <x-button label="Add User" icon="o-plus" class="btn-primary" wire:click="openAdd" spinner />
+            @endif
+        </x-slot:actions>
     </x-header>
-
-    @if(auth()->user()?->is_admin)
-        <div class="mb-4 flex justify-end">
-            <x-button label="Add User" icon="o-plus" class="btn-primary w-full sm:w-auto" wire:click="openAdd" spinner />
-        </div>
-    @endif
 
     @include('livewire.master-data.users.partials.table')
 

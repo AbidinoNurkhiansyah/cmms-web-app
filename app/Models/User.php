@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Scout\Searchable;
-
+use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, Searchable, SoftDeletes;
+    use HasFactory, Notifiable, Searchable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -48,21 +48,6 @@ class User extends Authenticatable
     const ROLE_SUPERVISOR = 'Maintenance Supervisor';
     const ROLE_MANAGER = 'Manager';
 
-    /**
-     * Check if user has a specific role
-     */
-    public function hasRole(string $role): bool
-    {
-        return $this->role === $role;
-    }
-
-    /**
-     * Check if user has any of the given roles
-     */
-    public function hasAnyRole(array $roles): bool
-    {
-        return in_array($this->role, $roles);
-    }
 
     /**
      * The attributes that should be hidden for serialization.

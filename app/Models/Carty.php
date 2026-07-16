@@ -24,6 +24,14 @@ class Carty extends Model
         'pics' => 'array',
     ];
 
+    public function scopeAuthorized($query, $user)
+    {
+        if ($user->hasRole(\App\Models\User::ROLE_OPERATOR)) {
+            return $query->where('LineName', $user->line_name);
+        }
+        return $query;
+    }
+
     public function spareParts()
     {
         return $this->belongsToMany(SparePart::class)->withPivot('qty')->withTimestamps();

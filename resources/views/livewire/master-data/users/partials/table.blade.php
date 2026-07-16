@@ -4,6 +4,7 @@
         ['key' => 'name', 'label' => 'Associate Name'],
         ['key' => 'position', 'label' => 'Position'],
         ['key' => 'team', 'label' => 'Team'],
+        ['key' => 'role_col', 'label' => 'System Role'],
         ['key' => 'status', 'label' => 'Status'],
         ['key' => 'action_col', 'label' => 'Action', 'class' => 'text-center'],
     ]" :rows="$users" with-pagination>
@@ -12,6 +13,20 @@
                 <x-avatar :image="$user->photo ? asset('storage/' . $user->photo) : asset('images/default-avatar.png')" class="!w-10 !h-10" />
                 <div class="font-bold">{{ $user->name }}</div>
             </div>
+        @endscope
+
+        @scope('cell_role_col', $user)
+            @if($user->is_admin)
+                <x-badge value="Super Admin" class="badge-error text-white font-bold whitespace-nowrap" />
+            @elseif($user->roles->count() > 0)
+                <div class="flex flex-wrap gap-1">
+                    @foreach($user->roles as $role)
+                        <x-badge value="{{ str_replace('Maintenance', 'MTC', ucfirst(str_replace('_', ' ', $role->name))) }}" class="badge-info text-white whitespace-nowrap" />
+                    @endforeach
+                </div>
+            @else
+                <span class="text-gray-400 italic text-sm whitespace-nowrap">No Role</span>
+            @endif
         @endscope
 
         @scope('cell_status', $user)

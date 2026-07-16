@@ -16,17 +16,20 @@ new #[Layout('layouts.guest')] class extends Component {
             'password' => 'required|string',
         ]);
 
+        $usernameInput = trim($this->username);
+        $passwordInput = trim($this->password);
+
         // Support login via username, email, or name (associate name)
-        $user = \App\Models\User::where('email', $this->username)
-            ->orWhere('username', $this->username)
-            ->orWhere('name', $this->username)
+        $user = \App\Models\User::where('email', $usernameInput)
+            ->orWhere('username', $usernameInput)
+            ->orWhere('name', $usernameInput)
             ->first();
 
         // Check if user exists and password matches (or if password entered is their JID)
         if ($user) {
-            if (Auth::attempt(['id' => $user->id, 'password' => $this->password])) {
+            if (Auth::attempt(['id' => $user->id, 'password' => $passwordInput])) {
                 $this->handleSuccessfulLogin();
-            } elseif ($user->jid_no && $this->password === $user->jid_no) {
+            } elseif ($user->jid_no && strtoupper($passwordInput) === strtoupper(trim($user->jid_no))) {
                 Auth::login($user);
                 $this->handleSuccessfulLogin();
             } else {
@@ -86,7 +89,8 @@ new #[Layout('layouts.guest')] class extends Component {
 
         <div class="w-full max-w-sm z-10">
             <div class="text-center md:text-left mb-8">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="md:hidden w-24 h-24 object-contain mx-auto mb-6" />
+                <img src="{{ asset('images/logo.png') }}" alt="Logo"
+                    class="md:hidden w-24 h-24 object-contain mx-auto mb-6" />
                 <h3 class="font-bold text-3xl mb-2 text-base-content tracking-tight">Welcome back</h3>
                 <p class="text-sm text-base-content/60">Please enter your credentials to continue to your account.</p>
             </div>
@@ -99,22 +103,22 @@ new #[Layout('layouts.guest')] class extends Component {
             @endif
 
             <form wire:submit="login" class="space-y-5">
-                <x-input label="Associate Name" wire:model="username" placeholder="Enter associate name..." icon="o-user"
-                    required class="input-bordered focus:input-primary" />
+                <x-input label="Associate Name" wire:model="username" placeholder="Enter associate name..."
+                    icon="o-user" required class="input-bordered focus:input-primary" />
                 <div class="relative">
-                    <x-password label="Password / JID" wire:model="password" placeholder="••••••••"
-                        icon="o-lock-closed" right required class="input-bordered focus:input-primary" />
+                    <x-password label="JID No" wire:model="password" placeholder="••••••••" icon="o-lock-closed" right
+                        required class="input-bordered focus:input-primary" />
                     <div class="absolute right-0 top-0 text-[11px] mt-2">
                         <a href="#" class="link link-hover link-primary font-medium">Forgot password?</a>
                     </div>
                 </div>
 
                 <div class="pt-3">
-                    <button type="submit" class="btn btn-primary w-full shadow-lg shadow-primary/20" wire:loading.attr="disabled">
+                    <button type="submit" class="btn btn-primary w-full shadow-lg shadow-primary/20"
+                        wire:loading.attr="disabled">
                         <span wire:loading wire:target="login" class="loading loading-spinner"></span>
                         <span wire:loading.remove wire:target="login">Sign in</span>
                         <span wire:loading wire:target="login">Signing in...</span>
-                        <x-icon wire:loading.remove wire:target="login" name="o-arrow-right" class="w-5 h-5 ml-1" />
                     </button>
                 </div>
             </form>

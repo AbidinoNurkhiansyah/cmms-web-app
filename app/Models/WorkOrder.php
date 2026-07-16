@@ -23,6 +23,14 @@ class WorkOrder extends Model
         'actual_date' => 'date',
     ];
 
+    public function scopeAuthorized($query, $user)
+    {
+        if ($user->hasRole(\App\Models\User::ROLE_OPERATOR)) {
+            return $query->where('LineName', $user->line_name);
+        }
+        return $query;
+    }
+
     public function spareparts()
     {
         return $this->hasMany(WorkOrderSparepart::class, 'work_order_id');

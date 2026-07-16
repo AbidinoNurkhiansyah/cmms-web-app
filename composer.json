@@ -21,7 +21,8 @@
         "robsontenorio/mary": "^2.8",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^5.4",
-        "spatie/laravel-activitylog": "^4.12"
+        "spatie/laravel-activitylog": "^4.12",
+        "spatie/laravel-permission": "^6.25"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

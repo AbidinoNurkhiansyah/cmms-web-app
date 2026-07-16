@@ -80,15 +80,21 @@
                 <x-menu-item title="Dashboard" icon="o-home" link="/dashboard" wire:navigate />
 
                 {{-- Maintenance --}}
-                @can('wr.view')
+                {{-- Maintenance --}}
+                @canany(['wr.view', 'asset.view'])
                 <x-menu-sub title="Maintenance" icon="o-wrench-screwdriver">
+                    @can('wr.view')
                     <x-menu-item title="Cardty" icon="o-clipboard-document-list" link="/maintenance/cardty" wire:navigate />
+                    @endcan
+                    
+                    @can('asset.view')
                     <x-menu-item title="Check Sheet" icon="o-document-check" link="/maintenance/checksheet" exact wire:navigate />
                     <x-menu-item title="CS Monitoring" icon="o-computer-desktop" link="/maintenance/checksheet-monitoring" wire:navigate />
                     <x-menu-item title="Andon" icon="o-bell" link="/andon" wire:navigate />
                     <x-menu-item title="One Hour Over" icon="o-clock" link="/maintenance/one-hour-over" wire:navigate />
+                    @endcan
                 </x-menu-sub>
-                @endcan
+                @endcanany
 
                 {{-- Deep Cleaning / TPM --}}
                 @can('pm.view')
@@ -117,6 +123,7 @@
                 @endcan
 
                 {{-- Administration --}}
+                @can('asset.view')
                 <x-menu-sub title="Administration" icon="o-user-group">
                     <x-menu-item title="Attendance" icon="o-user" link="/administration/attendance" wire:navigate />
                     <x-menu-item title="Over Time" icon="o-clock" link="/administration/overtime" wire:navigate />
@@ -125,8 +132,10 @@
                     <x-menu-item title="KYT" icon="o-shield-exclamation" link="/administration/kyt" wire:navigate />
                     <x-menu-item title="Rolling Break" icon="o-arrow-path" link="/administration/rolling-break" wire:navigate />
                 </x-menu-sub>
+                @endcan
 
                 {{-- Master Data --}}
+                @canany(['asset.view', 'sparepart.view', 'pm.manage'])
                 <x-menu-sub title="Master Data" icon="o-circle-stack">
                     @if(auth()->user()?->is_admin)
                         <x-menu-item title="User Management" icon="o-users" link="/users" wire:navigate />
@@ -139,15 +148,25 @@
                     @can('sparepart.view')
                         <x-menu-item title="Spare Parts" icon="o-wrench-screwdriver" link="/master/spare-parts" exact wire:navigate />
                     @endcan
-                    <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check" link="/checksheet/master" wire:navigate />
+                    @can('pm.manage')
+                        <x-menu-item title="Master Checksheet" icon="o-clipboard-document-check" link="/checksheet/master" wire:navigate />
+                    @endcan
                 </x-menu-sub>
+                @endcanany
 
                 {{-- Standalone items --}}
+                {{-- Standalone items --}}
+                @can('kpi.technical')
                 <x-menu-item title="Annalize Problem" icon="o-chart-pie" link="/problem-analysis" wire:navigate />
+                @endcan
+                
                 @can('wo.view')
                 <x-menu-item title="Work Order" icon="o-document-text" link="/work-orders" wire:navigate />
                 @endcan
+                
+                @can('kpi.team')
                 <x-menu-item title="Meeting" icon="o-video-camera" link="/meeting" wire:navigate />
+                @endcan
 
                 <div class="lg:hidden">
                     <x-menu-separator />
