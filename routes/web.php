@@ -71,8 +71,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('/work-orders/{id}', 'work-order.show')->name('work-orders.show')->where('id', '[0-9]+');
     Volt::route('/work-orders/{id}/edit', 'work-order.edit')->name('work-orders.edit')->where('id', '[0-9]+');
 
-    // Andon
-    Volt::route('/andon', 'andon.index')->name('andon.index');
+    Volt::route('/andon', 'maintenance.andon.index')->name('andon.index');
 
     // One Hour Over
     Volt::route('/maintenance/one-hour-over', 'maintenance.one-hour-over.index')->name('maintenance.one-hour-over.index');
