@@ -45,13 +45,18 @@ class DeepCleaningSeeder extends Seeder
             'Scrubbing area panel kontrol dan vacuum debu.'
         ];
 
-        // Buat 20 record dummy
-        for ($i = 0; $i < 20; $i++) {
+        // Buat 100 record dummy untuk bulan Feb, Mar, Apr, May
+        for ($i = 0; $i < 100; $i++) {
             $asset = $assets->random();
             $status = $faker->randomElement($statuses);
 
+            // Generate date between Feb 1 and May 31
+            $start = Carbon::create(date('Y'), 2, 1);
+            $end = Carbon::create(date('Y'), 5, 31);
+            $randomDate = Carbon::createFromTimestamp(rand($start->timestamp, $end->timestamp));
+
             $deepCleaning = DeepCleaning::create([
-                'Date'          => Carbon::today()->subDays(rand(0, 30)),
+                'Date'          => $randomDate,
                 'LineName'      => $asset->line_name,
                 'MachineNo'     => $asset->asset_no,
                 'MachineName'   => $asset->machine_name,

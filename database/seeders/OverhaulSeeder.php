@@ -17,8 +17,10 @@ class OverhaulSeeder extends Seeder
         $lines = ['Line Assy A', 'Line Assy B', 'Line Machining C', 'Line Injection D'];
         $machines = ['Press Machine', 'CNC Lathe', 'Injection Molding', 'Conveyor Belt'];
 
-        for ($i = 0; $i < 15; $i++) {
-            $startDate = Carbon::now()->subDays(rand(1, 30))->setTime(rand(8, 15), rand(0, 59));
+        for ($i = 0; $i < 100; $i++) {
+            $start = Carbon::create(date('Y'), 2, 1);
+            $end = Carbon::create(date('Y'), 5, 31);
+            $startDate = Carbon::createFromTimestamp(rand($start->timestamp, $end->timestamp))->setTime(rand(8, 15), rand(0, 59));
             $endDate = (clone $startDate)->addMinutes(rand(30, 240));
 
             $overhaul = Overhaul::create([
@@ -30,7 +32,7 @@ class OverhaulSeeder extends Seeder
                 'MachineName' => $faker->randomElement($machines),
                 'asset_no' => 'AST-' . $faker->bothify('??-####'),
                 'problem' => $faker->sentence(6),
-                'description' => $faker->paragraph(2),
+                'status' => 'Done',
                 'repair_time' => $startDate->diffInMinutes($endDate),
                 'work_time' => $startDate->diffInMinutes($endDate) + rand(10, 30), // Work time is usually slightly longer
                 'PIC' => $faker->numberBetween(1000, 9999), // Assuming JID is numeric
