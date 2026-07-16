@@ -42,7 +42,6 @@ class User extends Authenticatable
     /**
      * Role definitions
      */
-    const ROLE_OPERATOR = 'Operator (Produksi)';
     const ROLE_TECHNICIAN = 'Maintenance Technician';
     const ROLE_PLANNER = 'Maintenance Planner';
     const ROLE_SUPERVISOR = 'Maintenance Supervisor';

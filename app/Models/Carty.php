@@ -26,9 +26,6 @@ class Carty extends Model
 
     public function scopeAuthorized($query, $user)
     {
-        if ($user->hasRole(\App\Models\User::ROLE_OPERATOR)) {
-            return $query->where('LineName', $user->line_name);
-        }
         return $query;
     }
 

@@ -38,10 +38,7 @@ class RoleAndPermissionSeeder extends Seeder
         }
 
         // 2. Create Roles and Assign Permissions
-        $roleOperator = Role::findOrCreate(User::ROLE_OPERATOR);
-        $roleOperator->syncPermissions([
-            'wr.create', 'wr.view', 'wo.view'
-        ]);
+        // (Role Operator dihapus karena akses via public QR scan)
 
         $roleTechnician = Role::findOrCreate(User::ROLE_TECHNICIAN);
         $roleTechnician->syncPermissions([
